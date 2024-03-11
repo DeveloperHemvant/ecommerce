@@ -1,7 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminController\AdminController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Auth\LogoutController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,5 +15,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('Auth.login');
+})->name('login');
+
+Route::get('/admindashboard', function () {
+    return view('Admin.Dashboard');
+})->middleware('auth');
+
+Route::get('/admindashboard',  [AdminController::class, 'login'])->middleware('auth');
+
+
+Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
+
