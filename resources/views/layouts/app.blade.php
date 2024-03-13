@@ -20,7 +20,7 @@
        
 
         <main class="">
-            @yield('content')
+           {{$slot}}
         </main>
     </div>
 

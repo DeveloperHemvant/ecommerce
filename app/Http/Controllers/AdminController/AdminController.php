@@ -10,4 +10,7 @@ class AdminController extends Controller
    public function login(){
     return view('Admin.Dashboard');
    }
+   public function addcategory(){
+    return view('Admin.Addcategory');
+   }
 }
