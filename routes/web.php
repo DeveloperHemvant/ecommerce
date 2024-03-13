@@ -3,7 +3,10 @@
 use App\Http\Controllers\AdminController\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Livewire\AddCategory;
+use App\Livewire\AllCategory;
+use App\Livewire\AddCategory;
+use App\Livewire\AdminDashboard;
+
 use Livewire\Livewire;
 
 
@@ -24,7 +27,7 @@ Route::get('/', function () {
     return view('Auth.login');
 })->name('login');
 
-
+Route::get('/allcategory', [AllCategory::class, 'render'])->name('allcategory');
 
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
     Route::middleware(['auth'])->group(function () {

@@ -4,14 +4,14 @@
     </div>
     <nav class="flex-1 mt-6">
         <!-- Dashboard -->
-        <a href="{{ url('/admindashboard') }}" class="block py-2 px-4 text-gray-400 hover:bg-gray-700 hover:text-white">Dashboard</a>
+        <a href="/admindashboard"  wire:navigate class="block py-2 px-4 text-gray-400 hover:bg-gray-700 hover:text-white">Dashboard</a>
         <!-- Projects -->
         <div class="group relative">
             <a href="#" class="block py-2 px-4 text-gray-400 hover:bg-gray-700 hover:text-white">Categories</a>
             <!-- Dropdown -->
             <div class="hidden absolute z-10 left-0 mt-2 w-48 p-2 rounded-lg shadow-lg bg-gray-700" id="dropdown">
-                <a href="{{ url('/addcategory') }}" class="block py-1 px-3 text-sm text-gray-300 hover:bg-gray-600">Add Category</a>
-                <a href="#" class="block py-1 px-3 text-sm text-gray-300 hover:bg-gray-600">All Category</a>
+                <a href="/addcategory"  wire:navigate class="block py-1 px-3 text-sm text-gray-300 hover:bg-gray-600">Add Category</a>
+                <a href="/allcategory" wire:navigate class="block py-1 px-3 text-sm text-gray-300 hover:bg-gray-600">All Category</a>
             </div>
         </div>
         <!-- Team -->
@@ -37,8 +37,5 @@
     document.querySelector('.group').addEventListener('mouseenter', function() {
         document.getElementById('dropdown').classList.remove('hidden');
     });
-    document.querySelector('.group').addEventListener('mouseleave', function() {
-        document.getElementById('dropdown').classList.add('hidden');;
-    });
-    
+</script>
 </script>
