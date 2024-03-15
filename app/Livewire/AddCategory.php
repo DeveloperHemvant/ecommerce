@@ -27,11 +27,7 @@ class AddCategory extends Component
       
         $filename = md5($this->image . microtime()).'.'.$this->image->extension();
 
-        $this->image->store('images', $filename);
-    
-        // $this->image->move('images',$filename,'public');
-        // $filename = $this->image->store('images');
-
+        $this->image->store(path: 'images');
         MainCategory::create([
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],
