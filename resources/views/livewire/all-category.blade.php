@@ -1,10 +1,10 @@
-@extends('welcome')
-@section('content')
+@extends('Admin.dashboard')
+@section('mainsection')
 
 <!-- index.blade.php or any other Blade file -->
 <div class="flex h-screen bg-gray-200">
     <!-- Sidebar -->
-   @livewire('navigation')
+   {{-- @livewire('navigation') --}}
 
     <!-- Content -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

@@ -38,4 +38,4 @@
         document.getElementById('dropdown').classList.remove('hidden');
     });
 </script>
-</script>
+

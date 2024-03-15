@@ -1,13 +1,8 @@
-<div class="flex flex-col flex-1">
-    <!-- Header -->
-    <div class="bg-white shadow-md border-b border-gray-200">
-        <div class="flex items-center justify-between px-6 h-16">
-            <span class="text-lg font-semibold">Header</span>
-        </div>
-    </div>
 
+<div class="flex flex-col flex-1">
+    
     <!-- Main Content -->
-    <div class="p-6 flex-1 overflow-y-auto">
+     <div class="p-6 flex-1 overflow-y-auto">
         <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div class="max-w-md w-full space-y-8">
                 <div>
@@ -81,4 +76,4 @@
             }, 3000);
         });
     });
-</script>
+</script> 

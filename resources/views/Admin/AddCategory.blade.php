@@ -1,10 +1,10 @@
-@extends('welcome')
-@section('content')
+@extends('Admin.dashboard')
+@section('mainsection')
 
 <!-- index.blade.php or any other Blade file -->
 <div class="flex h-screen bg-gray-200">
     <!-- Sidebar -->
-   @livewire('navigation')
+   {{-- @livewire('navigation') --}}
 
     <!-- Content -->
     @livewire('add-category');
