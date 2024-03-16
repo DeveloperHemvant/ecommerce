@@ -1,4 +1,6 @@
-<div>
+
+<div class="flex justify-center items-center h-screen">
+    <div class="bg-rgba-200-219-255 p-4 rounded-lg"><div>
     @error('login') <span class="text-red-500">{{ $message }}</span>@enderror
     <form wire:submit.prevent="login" class="max-w-sm mx-auto">
         <div class="mb-4">
@@ -11,9 +13,11 @@
             <input wire:model="password" type="password" id="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter your password">
             @error('password') <span class="text-red-500">{{ $message }}</span>@enderror
         </div>
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-end">
             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Log In</button>
         </div>
     </form>
+</div>
+</div>
 </div>
 

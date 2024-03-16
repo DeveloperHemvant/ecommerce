@@ -15,13 +15,13 @@
         @livewireStyles
    
 </head>
-<body class="font-sans antialiased">
+<body class="font-sans antialiased w-full bg-gradient-to-r from-red-400 via-yellow-400 to-green-400">
     <div class="min-h-screen bg-gray-100">
        
 
-        <main class="">
+        
             @yield('content')
-        </main>
+        
     </div>
 
 @livewireScripts
