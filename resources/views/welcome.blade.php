@@ -19,7 +19,6 @@
     <div class="min-h-screen bg-gray-100">
             @yield('content')
     </div>
-
 @livewireScripts
     </body>
 </html>
