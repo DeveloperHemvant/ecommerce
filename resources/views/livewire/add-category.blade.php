@@ -29,12 +29,12 @@
                         </div>
                         <div>
                             <label for="image" class="sr-only">Image</label>
-                            <input wire:model.blur='image' id="image" name="image" type="file" required
+                            <input wire:model.blur='photo' id="photo" name="photo" type="file" required
                                    class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                    placeholder="Image">
-                                   @if ($image)
+                                   @if ($photo)
                                    Photo Preview:
-                                   <img src="{{ $image->temporaryUrl() }}">
+                                   <img src="{{ $photo->temporaryUrl() }}">
                                @endif
                             @error('image') <span class="text-red-500">{{ $message }}</span> @enderror
                         </div>

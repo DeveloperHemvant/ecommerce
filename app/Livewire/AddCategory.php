@@ -12,33 +12,29 @@ class AddCategory extends Component
 
     public $name;
     public $description;
-    public $image;
+    public $photo;
     public $parentid;
   
     public function create(){
         $validatedData = $this->validate([
             'name' => 'required|unique:main_categories',
             'description' => 'required|max:40',
-            'image' => 'image|required',
+            'photo' => 'image|required',
             'parentid' => '',
         ]);
-
-        
-      
-        $filename = md5($this->image . microtime()).'.'.$this->image->extension();
-
-        $this->image->store(path: 'images');
         MainCategory::create([
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],
-            'image' => $filename, 
+            'image' => $this->photo->store('public/photos'),
             'parent_id' => $validatedData['parentid'],
         ]);
-
-        // Reset input fields after successful submission
-        $this->reset();
-        
+        $this->reset('name','description','photo');
+        if ($this->parentid) {
+            $this->reset('parentid');
+        }
     }
+    
+    
     public function render()
     {
         $category=MainCategory::all();
