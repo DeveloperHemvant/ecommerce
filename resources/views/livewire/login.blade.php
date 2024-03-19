@@ -1,4 +1,3 @@
-
 <div class="flex justify-center items-center h-screen">
     <div class="bg-rgba-200-219-255 p-4 rounded-lg"><div>
     @error('login') <span class="text-red-500">{{ $message }}</span>@enderror

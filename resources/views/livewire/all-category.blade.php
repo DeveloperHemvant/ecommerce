@@ -1,16 +1,5 @@
 @extends('Admin.dashboard')
 @section('mainsection')
-
-<!-- index.blade.php or any other Blade file -->
-
-
-
-
-
-
-
-
-
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
     @foreach($categories as $category)
     <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
@@ -22,12 +11,5 @@
     </div>
     @endforeach
 </div>
-
-
-
-
-
-
-
 @endsection
 

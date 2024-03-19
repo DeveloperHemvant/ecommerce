@@ -33,8 +33,6 @@ class AddCategory extends Component
             $this->reset('parentid');
         }
     }
-    
-    
     public function render()
     {
         $category=MainCategory::all();

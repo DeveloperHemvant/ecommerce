@@ -1,7 +1,4 @@
-
 <div class="flex flex-col flex-1">
-    
-    <!-- Main Content -->
      <div class="p-6 flex-1 overflow-y-auto">
         <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div class="max-w-md w-full space-y-8">
@@ -46,7 +43,6 @@
                                 @foreach ($category as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                 @endforeach
-                                <!-- Option values to be populated dynamically -->
                             </select>
                             @error('parentid') <span class="text-red-500">{{ $message }}</span> @enderror
                         </div>
@@ -55,7 +51,7 @@
                     <div>
                         <button type="submit"
                                 class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Sign up
+                            Add Category
                         </button>
                     </div>
                 </form>
