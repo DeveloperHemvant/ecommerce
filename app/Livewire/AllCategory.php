@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\MainCategory; 
 class AllCategory extends Component
 {
-    public function hello()
+    public function deleteConfirmation($id)
     {
         
         dd("hello");

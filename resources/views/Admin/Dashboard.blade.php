@@ -35,15 +35,7 @@
         @endif
     </div>
 </div>
-<script>
-    document.getElementById('dropdown').addEventListener('mouseleave', function() {
-        this.classList.add('hidden');
-    });
 
-    document.querySelector('.group').addEventListener('mouseenter', function() {
-        document.getElementById('dropdown').classList.remove('hidden');
-    });
-</script>
 
 
 
@@ -63,24 +55,9 @@
     </div>
 </div>
 
-<script>
-    document.getElementById('dropdown').addEventListener('mouseleave', function() {
-        this.classList.add('hidden');
-    });
-
-    document.querySelector('.group').addEventListener('mouseenter', function() {
-        document.getElementById('dropdown').classList.remove('hidden');
-    });
-</script>
 
 
 
 
-@if (auth()->check())
-    <p>Welcome, {{ auth()->user()->name }}</p>
-@endif
-<form method="POST" action="{{ route('logout') }}">
-    @csrf
-    <button type="submit">Logout</button>
-</form>
-@endsection
+
+

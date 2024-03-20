@@ -13,7 +13,8 @@
                 Update
             </button>
             <!-- Livewire Component View -->
-<button wire:click="delete" wire:loading.attr="disabled" wire:target="delete" wire:confirm="Are you sure you want to delete this post?" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2">
+<button wire:click="delete({{$category->id}})"
+wire:confirm="Are you sure you want to delete this post?" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2">
     Delete
 </button>
 

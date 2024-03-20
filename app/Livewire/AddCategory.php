@@ -15,13 +15,16 @@ class AddCategory extends Component
     public $photo;
     public $parentid;
   
+ 
     public function create(){
+
         $validatedData = $this->validate([
             'name' => 'required|unique:main_categories',
             'description' => 'required|max:40',
             'photo' => 'image|required',
             'parentid' => '',
         ]);
+        dd($validatedData);
         MainCategory::create([
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],

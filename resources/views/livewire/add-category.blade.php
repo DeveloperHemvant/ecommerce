@@ -55,6 +55,7 @@
                             Add Category
                         </button>
                     </div>
+                    
                 </form>
             </div>
         </div>
