@@ -1,3 +1,7 @@
+@extends('livewire.admin-dashboard')
+@section('mainsection')
+    
+
 <div class="flex flex-col flex-1">
      <div class="p-6 flex-1 overflow-y-auto">
         <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -29,10 +33,7 @@
                             <input wire:model.blur='photo' id="photo" name="photo" type="file" required
                                    class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                    placeholder="Image">
-                                   @if ($photo)
-                                   Photo Preview:
-                                   <img src="{{ $photo->temporaryUrl() }}">
-                               @endif
+                                
                             @error('image') <span class="text-red-500">{{ $message }}</span> @enderror
                         </div>
                         <div>
@@ -73,3 +74,4 @@
         });
     });
 </script> 
+@endsection

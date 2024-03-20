@@ -26,18 +26,11 @@ use Livewire\Livewire;
 Route::get('/', function () {
     return view('Auth.login');
 })->name('login');
-
+Route::middleware(['auth'])->group(function () {
 Route::get('/allcategory', [AllCategory::class, 'render'])->name('allcategory');
-
+Route::get('/addcategory', [AddCategory::class, 'render'])->name('addcategory');
+Route::get('/admindashboard', [AdminDashboard::class, 'render'])->name('admindashboard');
+});
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');
-    Route::middleware(['auth'])->group(function () {
-        Route::controller(AdminController::class) ->group(function () {
-                Route::get('/admindashboard', 'login');
-                Route::get('/addcategory', 'addcategory');
-                
-                
-            
-            });
 
-    });
 

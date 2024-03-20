@@ -26,14 +26,16 @@ class Login extends Component
         'password.regex' => 'The password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.',
     ];
    public function login(){
+    
     $credentials = [
         'email' => $this->email,
         'password' => $this->password,
     ];
+   
     $this->validate();
     if (Auth::attempt(['email' => $this->email, 'password' => $this->password])) {
         
-        return redirect()->intended('/admindashboard');
+        return redirect()->route('admindashboard');
     } else {
         $this->addError('login', 'Invalid email or password.');
     }

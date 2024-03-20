@@ -6,6 +6,11 @@ use Livewire\Component;
 use App\Models\MainCategory; 
 class AllCategory extends Component
 {
+    public function hello()
+    {
+        
+        dd("hello");
+    }
     public function render()
     {
         $categories=MainCategory::all();
