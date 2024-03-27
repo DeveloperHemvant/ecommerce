@@ -11,6 +11,6 @@ class AdminController extends Controller
     return view('Admin.Dashboard');
    }
    public function addcategory(){
-    return view('Admin.Addcategory');
+    return view('Admin.add-category');
    }
 }

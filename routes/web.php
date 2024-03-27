@@ -28,7 +28,7 @@ Route::get('/', function () {
 })->name('login');
 Route::middleware(['auth'])->group(function () {
 Route::get('/allcategory', [AllCategory::class, 'render'])->name('allcategory');
-Route::get('/addcategory', [AddCategory::class, 'render'])->name('addcategory');
+Route::get('/addcategory', [AdminController::class, 'addcategory'])->name('addcategory');
 Route::get('/admindashboard', [AdminDashboard::class, 'render'])->name('admindashboard');
 });
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout');

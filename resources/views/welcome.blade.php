@@ -13,31 +13,33 @@
         <!-- Styles -->
         @vite('resources/css/app.css')
         @livewireStyles
-   
+       
 </head>
-<body class="font-sans antialiased w-full bg-gradient-to-r from-red-400 via-yellow-400 to-green-400">
+<body class="font-sans antialiased w-full bg-gradient-to-r from-red-400 via-yellow-400 to-green-400 ">
     <div class="min-h-screen bg-gray-100">
             @yield('content')
     </div>
+
+
+<script>
+    document.getElementById('dropdown').addEventListener('mouseleave', function() {
+        this.classList.add('hidden');
+    });
+
+    document.querySelector('.group').addEventListener('mouseenter', function() {
+        document.getElementById('dropdown').classList.remove('hidden');
+    });
+</script>
+<script>
+    document.getElementById('dropdown').addEventListener('mouseleave', function() {
+        this.classList.add('hidden');
+    });
+
+    document.querySelector('.group').addEventListener('mouseenter', function() {
+        document.getElementById('dropdown').classList.remove('hidden');
+    });
+</script>
 @livewireScripts
-
-<script>
-    document.getElementById('dropdown').addEventListener('mouseleave', function() {
-        this.classList.add('hidden');
-    });
-
-    document.querySelector('.group').addEventListener('mouseenter', function() {
-        document.getElementById('dropdown').classList.remove('hidden');
-    });
-</script>
-<script>
-    document.getElementById('dropdown').addEventListener('mouseleave', function() {
-        this.classList.add('hidden');
-    });
-
-    document.querySelector('.group').addEventListener('mouseenter', function() {
-        document.getElementById('dropdown').classList.remove('hidden');
-    });
-</script>
     </body>
+    
 </html>

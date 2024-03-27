@@ -35,19 +35,7 @@
         @endif
     </div>
 </div>
-<script>
-    document.getElementById('dropdown').addEventListener('mouseleave', function() {
-        this.classList.add('hidden');
-    });
-
-    document.querySelector('.group').addEventListener('mouseenter', function() {
-        document.getElementById('dropdown').classList.remove('hidden');
-    });
-</script>
-
-
-
-    <!-- Content -->
+  <!-- Content -->
     <div class="flex flex-col flex-1">
         <!-- Header -->
         <div class="bg-white shadow-md border-b border-gray-200">

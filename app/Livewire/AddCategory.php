@@ -24,7 +24,7 @@ class AddCategory extends Component
             'photo' => 'image|required',
             'parentid' => '',
         ]);
-        dd($validatedData);
+       
         MainCategory::create([
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],

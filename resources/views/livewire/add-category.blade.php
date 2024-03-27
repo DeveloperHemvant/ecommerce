@@ -1,5 +1,4 @@
-@extends('livewire.admin-dashboard')
-@section('mainsection')
+
     
 
 <div class="flex flex-col flex-1">
@@ -12,7 +11,7 @@
                     </h2>
                 </div>
                 <form wire:submit.prevent="create" class="mt-8 space-y-6"  method="POST" enctype="multipart/form-data">
-                    
+                    @csrf
                     <div class="rounded-md shadow-sm -space-y-px">
                         <div>
                             <label for="name" class="sr-only">Name</label>
@@ -75,4 +74,3 @@
         });
     });
 </script> 
-@endsection
