@@ -14,7 +14,18 @@ class AddCategory extends Component
     public $description;
     public $photo;
     public $parentid;
-  
+    public $categoryId;
+    
+    public $editing = false;
+    public function editCategory($categoryId)
+    {
+        $category = MainCategory::find($categoryId);
+        if ($category) {
+            $this->categoryId = $category->id;
+            $this->name = $category->name;
+            $this->editing = true;
+        }
+    }
  
     public function create(){
 

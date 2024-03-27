@@ -6,10 +6,17 @@ use Livewire\Component;
 use App\Models\MainCategory; 
 class AllCategory extends Component
 {
-    public function deleteConfirmation($id)
+    public function deleteCategory($id)
     {
         
-        dd("hello");
+        $category = MainCategory::find($id);
+        if ($category) {
+            $category->delete();
+        }
+    }
+    public function update($categoryId){
+        
+        return redirect()->route('EditCategory', ['category' => $categoryId]);
     }
     public function render()
     {
