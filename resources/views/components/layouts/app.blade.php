@@ -3,8 +3,21 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ $title ?? 'Sonakshi Fashion Hub - YouTube Shopping' }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{{ $title ?? 'Sonakshi Fashion Hub - Royal Ethnic Couture' }}</title>
+
+    <!-- Progressive Web App (PWA) Meta Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#600018" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Sonakshi" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-72x72.png" />
 
     <!-- Google Fonts & Material Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,6 +43,9 @@
 
     <!-- Mobile Bottom Navigation Bar -->
     <x-bottom-nav />
+
+    <!-- PWA Install Banner -->
+    <x-pwa-install-banner />
 
     <!-- Footer -->
     <x-footer />

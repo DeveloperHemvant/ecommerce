@@ -17,10 +17,42 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderTrackingController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductDetailController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Progressive Web App (PWA) Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/manifest.json', function () {
+    $content = file_get_contents(public_path('manifest.json'));
+
+    return response($content, 200, [
+        'Content-Type' => 'application/manifest+json; charset=utf-8',
+        'Cache-Control' => 'public, max-age=3600',
+    ]);
+})->name('pwa.manifest');
+
+Route::get('/sw.js', function () {
+    $content = file_get_contents(public_path('sw.js'));
+
+    return response($content, 200, [
+        'Content-Type' => 'application/javascript; charset=utf-8',
+        'Cache-Control' => 'no-cache',
+    ]);
+})->name('pwa.serviceworker');
+
+Route::get('/offline.html', function () {
+    $content = file_get_contents(public_path('offline.html'));
+
+    return response($content, 200, [
+        'Content-Type' => 'text/html; charset=utf-8',
+    ]);
+})->name('pwa.offline');
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +63,17 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/collections', [CollectionsController::class, 'index'])->name('collections');
 Route::get('/shop', [CollectionsController::class, 'index'])->name('shop');
 Route::get('/products/{slug?}', [ProductDetailController::class, 'show'])->name('product.detail');
+
+// Company & Information Pages
+Route::get('/about-us', [PageController::class, 'about'])->name('about');
+Route::get('/contact-us', [PageController::class, 'contact'])->name('contact');
+Route::post('/contact-us', [PageController::class, 'contactSubmit'])->name('contact.submit');
+
+// Legal & Customer Policies
+Route::get('/shipping-policy', [PageController::class, 'shipping'])->name('shipping.policy');
+Route::get('/terms-of-service', [PageController::class, 'terms'])->name('terms');
+Route::get('/return-policy', [PageController::class, 'returns'])->name('return.policy');
+Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy.policy');
 
 // Live Public Order Tracking
 Route::get('/track-order', [OrderTrackingController::class, 'index'])->name('track.order');

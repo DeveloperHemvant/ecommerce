@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Offline - Sonakshi Fashion Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #FAF7F2;
+            color: #1E1B18;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+        .card {
+            background: #FFFFFF;
+            border: 1px solid rgba(197, 179, 88, 0.35);
+            border-radius: 24px;
+            padding: 40px 24px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(96, 0, 24, 0.08);
+        }
+        .emblem {
+            width: 80px;
+            height: 80px;
+            background: #F3EAE0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #600018;
+            border: 2px solid #C5B358;
+        }
+        .emblem .material-symbols-outlined { font-size: 38px; }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #600018;
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 13px;
+            color: #5C554E;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background-color: #600018;
+            color: #FFFFFF;
+            border: none;
+            box-shadow: 0 4px 14px rgba(96, 0, 24, 0.25);
+            margin-bottom: 12px;
+        }
+        .btn-primary:hover { background-color: #480012; transform: translateY(-1px); }
+        .btn-outline {
+            background-color: transparent;
+            color: #600018;
+            border: 1px solid #C5B358;
+        }
+        .btn-outline:hover { background-color: rgba(197, 179, 88, 0.15); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="emblem">
+            <span class="material-symbols-outlined">wifi_off</span>
+        </div>
+        <h1>Connection Lost</h1>
+        <p>You are currently offline. Please check your internet connection to continue exploring our royal bridal and festive collections.</p>
+        <button onclick="window.location.reload()" class="btn btn-primary">
+            <span class="material-symbols-outlined" style="font-size: 18px;">refresh</span>
+            Retry Connection
+        </button>
+        <a href="tel:+919876500000" class="btn btn-outline">
+            <span class="material-symbols-outlined" style="font-size: 18px;">call</span>
+            Call Atelier Stylist
+        </a>
+    </div>
+</body>
+</html>
