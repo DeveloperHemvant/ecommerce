@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Sonakshi Fashion Hub - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#f3f0f0",
+                        "warm-ivory": "#FAF9F6",
+                        "surface-container-high": "#eae8e7",
+                        "on-secondary-fixed": "#211b00",
+                        "on-background": "#1b1c1c",
+                        "outline-variant": "#ddc0c0",
+                        "secondary-fixed": "#f7e382",
+                        "on-tertiary-fixed": "#1a1c1a",
+                        "primary": "#39000b",
+                        "on-secondary": "#ffffff",
+                        "outline": "#8a7172",
+                        "tertiary": "#171817",
+                        "charcoal-text": "#333333",
+                        "background": "#fbf9f8",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e4e2e1",
+                        "on-primary-container": "#ea6c78",
+                        "primary-fixed": "#ffdadb",
+                        "on-surface-variant": "#564242",
+                        "on-secondary-fixed-variant": "#524700",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#f7e382",
+                        "cream-silk": "#FFFDD0",
+                        "surface-bright": "#fbf9f8",
+                        "surface-tint": "#a53846",
+                        "heritage-burgundy": "#600018",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#e3e2e0",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-tertiary-fixed-variant": "#464745",
+                        "inverse-surface": "#303030",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#2c2d2b",
+                        "tertiary-fixed-dim": "#c7c6c4",
+                        "surface-dim": "#dcd9d9",
+                        "on-tertiary-container": "#949492",
+                        "surface-container-low": "#f6f3f2",
+                        "on-error": "#ffffff",
+                        "border-subtle": "#E5E1D8",
+                        "on-surface": "#1b1c1c",
+                        "primary-container": "#600018",
+                        "secondary-fixed-dim": "#dac769",
+                        "muted-gold": "#C5B358",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#f0eded",
+                        "primary-fixed-dim": "#ffb2b6",
+                        "surface": "#fbf9f8",
+                        "on-primary-fixed-variant": "#852030",
+                        "inverse-primary": "#ffb2b6",
+                        "on-primary-fixed": "#40000d",
+                        "on-secondary-container": "#73640e",
+                        "secondary": "#6c5e06"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "container-max-width": "1440px",
+                        "unit": "8px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Playfair Display"],
+                        "body-lg": ["Montserrat"],
+                        "headline-lg": ["Playfair Display"],
+                        "data-tabular": ["Montserrat"],
+                        "title-lg": ["Montserrat"],
+                        "body-md": ["Montserrat"],
+                        "display-lg": ["Playfair Display"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "label-caps": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["28px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["40px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "data-tabular": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "title-lg": ["20px", { "lineHeight": "1.4", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+    <!-- NavigationDrawer (Sidebar) -->
+    <aside
+        class="hidden md:flex flex-col h-screen py-4 w-64 border-r border-border-subtle bg-surface-container-low fixed left-0 top-0 z-40">
+        <!-- Header -->
+        <div class="px-gutter mb-8 flex items-center gap-3">
+            <img class="w-10 h-10 rounded-full object-cover border border-border-subtle"
+                data-alt="A small circular avatar image showing a professional woman with a warm smile, indicating the platform manager for a boutique fashion brand. The lighting is soft and flattering, set against a neutral background."
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuATRNinkluNIc-RW4nWkCBoIABaZoaVufNIxl-o-MHYjBSX3Mi_XNAXyAdPr1kLAY6dEJs4C2OVouJjFkmr1kSO8XLTD_0_gSKLC9AOS_wuPB-aQrF9tqn2PGBRsHdNRf2vYAmb0AMHhzfRQ6fhzGW_jkL6tEwmVV4fXs31xkfg00AHTDC_w0sHJ1j8gqLvgRcNSb-p1MrAJsKUtnISZRZA7NLyPy2cA8cQvExmHVc9OxqbzLVal6aU" />
+            <div>
+                <h2 class="font-title-lg text-title-lg text-heritage-burgundy">Sonakshi Admin</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant">Platform Manager</p>
+            </div>
+        </div>
+        <!-- Navigation Links -->
+        <nav class="flex-1 overflow-y-auto px-2 space-y-1">
+            <!-- Active: Dashboard -->
+            <a class="flex items-center gap-3 px-4 py-3 bg-primary text-on-primary rounded-lg mx-2 my-1 group transition-transform translate-x-1"
+                href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                <span class="font-body-md text-body-md">Dashboard</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 my-1 transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">package_2</span>
+                <span class="font-body-md text-body-md">Orders</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 my-1 transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">dry_cleaning</span>
+                <span class="font-body-md text-body-md">Products</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 my-1 transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <span class="font-body-md text-body-md">Inventory</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 my-1 transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">smart_display</span>
+                <span class="font-body-md text-body-md">YouTube CMS</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 my-1 transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">bar_chart</span>
+                <span class="font-body-md text-body-md">Analytics</span>
+            </a>
+            <div class="mt-auto pt-4 border-t border-border-subtle mx-4"></div>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 my-1 transition-colors"
+                href="#">
+                <span class="material-symbols-outlined">settings</span>
+                <span class="font-body-md text-body-md">Settings</span>
+            </a>
+        </nav>
+    </aside>
+    <!-- Main Content Canvas -->
+    <main class="flex-1 md:ml-64 p-margin-mobile md:p-margin-desktop bg-background min-h-screen">
+        <!-- Top Bar / Header Area (Content Context, not app shell) -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="font-headline-lg text-headline-lg text-heritage-burgundy">Dashboard Overview</h1>
+                <p class="font-body-md text-body-md text-on-surface-variant mt-1">Welcome back. Here is what's happening
+                    today.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span
+                    class="px-3 py-1 bg-surface-container-highest text-on-surface-variant font-label-caps text-label-caps rounded-full border border-border-subtle flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-error"></span>
+                    DEMO DATA
+                </span>
+                <!-- Date Filter -->
+                <div
+                    class="inline-flex rounded-lg border border-border-subtle bg-surface-container-lowest p-1 shadow-[0px_10px_30px_rgba(96,0,24,0.02)]">
+                    <button
+                        class="px-4 py-1.5 rounded text-on-surface-variant hover:text-heritage-burgundy font-data-tabular text-data-tabular transition-colors">Today</button>
+                    <button
+                        class="px-4 py-1.5 rounded bg-cream-silk text-heritage-burgundy font-data-tabular text-data-tabular shadow-sm">7
+                        Days</button>
+                    <button
+                        class="px-4 py-1.5 rounded text-on-surface-variant hover:text-heritage-burgundy font-data-tabular text-data-tabular transition-colors">30
+                        Days</button>
+                </div>
+            </div>
+        </header>
+        <!-- KPI Bento Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-8">
+            <!-- KPI 1 -->
+            <div
+                class="bg-surface-container-lowest p-6 rounded-xl border border-border-subtle shadow-[0px_10px_30px_rgba(96,0,24,0.02)] flex flex-col justify-between">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-label-caps text-label-caps text-on-surface-variant">Total Revenue</h3>
+                    <div
+                        class="w-8 h-8 rounded-full bg-cream-silk flex items-center justify-center text-heritage-burgundy">
+                        <span class="material-symbols-outlined text-[18px]">payments</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="font-headline-md text-headline-md text-on-background mb-1">₹12.4L</div>
+                    <div class="flex items-center gap-1 text-secondary text-data-tabular font-data-tabular">
+                        <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        <span>+14.2% from last week</span>
+                    </div>
+                </div>
+            </div>
+            <!-- KPI 2 -->
+            <div
+                class="bg-surface-container-lowest p-6 rounded-xl border border-border-subtle shadow-[0px_10px_30px_rgba(96,0,24,0.02)] flex flex-col justify-between">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-label-caps text-label-caps text-on-surface-variant">Total Orders</h3>
+                    <div
+                        class="w-8 h-8 rounded-full bg-cream-silk flex items-center justify-center text-heritage-burgundy">
+                        <span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="font-headline-md text-headline-md text-on-background mb-1">1,450</div>
+                    <div class="flex items-center gap-1 text-secondary text-data-tabular font-data-tabular">
+                        <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        <span>+5.1% from last week</span>
+                    </div>
+                </div>
+            </div>
+            <!-- KPI 3 -->
+            <div
+                class="bg-surface-container-lowest p-6 rounded-xl border border-border-subtle shadow-[0px_10px_30px_rgba(96,0,24,0.02)] flex flex-col justify-between">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-label-caps text-label-caps text-on-surface-variant">Active Customers</h3>
+                    <div
+                        class="w-8 h-8 rounded-full bg-cream-silk flex items-center justify-center text-heritage-burgundy">
+                        <span class="material-symbols-outlined text-[18px]">group</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="font-headline-md text-headline-md text-on-background mb-1">890</div>
+                    <div class="flex items-center gap-1 text-secondary text-data-tabular font-data-tabular">
+                        <span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        <span>+12 new today</span>
+                    </div>
+                </div>
+            </div>
+            <!-- KPI 4 -->
+            <div
+                class="bg-surface-container-lowest p-6 rounded-xl border border-border-subtle shadow-[0px_10px_30px_rgba(96,0,24,0.02)] flex flex-col justify-between">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-label-caps text-label-caps text-on-surface-variant">Conversion Rate</h3>
+                    <div
+                        class="w-8 h-8 rounded-full bg-cream-silk flex items-center justify-center text-heritage-burgundy">
+                        <span class="material-symbols-outlined text-[18px]">monitoring</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="font-headline-md text-headline-md text-on-background mb-1">4.2%</div>
+                    <div class="flex items-center gap-1 text-error text-data-tabular font-data-tabular">
+                        <span class="material-symbols-outlined text-[14px]">trending_down</span>
+                        <span>-0.4% from last week</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content Area: Charts & Alerts -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-8">
+            <!-- Revenue Line Chart (Mockup) -->
+            <div
+                class="lg:col-span-2 bg-surface-container-lowest p-6 rounded-xl border border-border-subtle shadow-[0px_10px_30px_rgba(96,0,24,0.02)] flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-title-lg text-title-lg text-on-background">Revenue Overview</h3>
+                    <button class="text-on-surface-variant hover:text-heritage-burgundy transition-colors">
+                        <span class="material-symbols-outlined">more_horiz</span>
+                    </button>
+                </div>
+                <div
+                    class="flex-1 relative min-h-[300px] w-full bg-surface-container-low/50 rounded flex items-center justify-center overflow-hidden border border-border-subtle">
+                    <!-- Simple CSS-based mock line chart representation -->
+                    <div class="absolute inset-0 p-4 flex items-end gap-2 px-8">
+                        <!-- Y-axis labels -->
+                        <div
+                            class="absolute left-2 top-4 bottom-8 flex flex-col justify-between text-[10px] text-on-surface-variant font-data-tabular">
+                            <span>₹15L</span><span>₹10L</span><span>₹5L</span><span>0</span>
+                        </div>
+                        <!-- Chart visual lines (SVG style mock) -->
+                        <svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+                            <!-- Grid lines -->
+                            <line class="text-border-subtle" stroke="currentColor" stroke-width="0.2" x1="0" x2="100"
+                                y1="0" y2="0"></line>
+                            <line class="text-border-subtle" stroke="currentColor" stroke-width="0.2" x1="0" x2="100"
+                                y1="33" y2="33"></line>
+                            <line class="text-border-subtle" stroke="currentColor" stroke-width="0.2" x1="0" x2="100"
+                                y1="66" y2="66"></line>
+                            <line class="text-border-subtle" stroke="currentColor" stroke-width="0.2" x1="0" x2="100"
+                                y1="100" y2="100"></line>
+                            <!-- Line -->
+                            <path
+                                d="M 0,80 C 10,70 20,90 30,60 C 40,30 50,50 60,40 C 70,30 80,10 90,20 C 95,25 100,10 100,10"
+                                fill="none" stroke="#600018" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                            <!-- Area under line -->
+                            <path
+                                d="M 0,80 C 10,70 20,90 30,60 C 40,30 50,50 60,40 C 70,30 80,10 90,20 C 95,25 100,10 100,10 L 100,100 L 0,100 Z"
+                                fill="url(#chartGradient)" opacity="0.2"></path>
+                            <defs>
+                                <lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                                    <stop offset="0%" stop-color="#600018"></stop>
+                                    <stop offset="100%" stop-color="#600018" stop-opacity="0"></stop>
+                                </lineargradient>
+                            </defs>
+                        </svg>
+                        <!-- X-axis labels -->
+                        <div
+                            class="absolute left-8 right-8 bottom-2 flex justify-between text-[10px] text-on-surface-variant font-data-tabular">
+                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Side Column: Alerts & Pie Chart -->
+            <div class="flex flex-col gap-gutter">
+                <!-- Low Stock Alert -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl border border-error-container shadow-[0px_10px_30px_rgba(186,26,26,0.05)] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-error-container rounded-bl-full -mr-8 -mt-8"></div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="material-symbols-outlined text-error">warning</span>
+                        <h3 class="font-title-lg text-title-lg text-on-background">Low Stock Alert</h3>
+                    </div>
+                    <div
+                        class="flex items-center gap-4 bg-surface-container-low p-3 rounded-lg border border-border-subtle">
+                        <div class="w-12 h-16 bg-surface-dim rounded overflow-hidden flex-shrink-0">
+                            <img class="w-full h-full object-cover"
+                                data-alt="A close-up product shot of a beautifully crafted Festive Embroidery Suit in deep red velvet, featuring intricate gold zari work and sequins along the neckline. The fabric texture is rich and luxurious, set against a soft, elegant background suitable for an upscale e-commerce catalog."
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI1P3trZmLiFPB6yEOAv2DUTdOpQBAbaeTseJplS8Bp-RudrhMyGNth1GqaExNnzjEHFA-CMoQIfQP7VOP2OkQaE_gEvnGJ85LhzwLawX2D-AzY5xgOunOUM3y4PLcqT5771cAmkV_9FpHV69gFiuUQBvDIUmNPFSuSDQKQJm3jJxE5W5CU5rKpk-NGAcpA6H_TWj4yQEW_zoDakNShIp9eoxpRkc4uR9fVsvFwH_2nn4Z0QTJ6Mmz" />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-body-md text-body-md font-medium text-on-background truncate">Festive
+                                Embroidery Suit</h4>
+                            <p class="font-data-tabular text-data-tabular text-on-surface-variant">SKU: FES-2024-RED</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="w-2 h-2 rounded-full bg-error"></span>
+                                <span class="font-data-tabular text-data-tabular text-error font-medium">Only 3 left in
+                                    stock</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full mt-4 py-2 border border-border-subtle rounded-lg text-heritage-burgundy font-body-md text-body-md hover:bg-surface-container-low transition-colors">
+                        Reorder Now
+                    </button>
+                </div>
+                <!-- Orders by Category Pie Chart -->
+                <div
+                    class="bg-surface-container-lowest p-6 rounded-xl border border-border-subtle shadow-[0px_10px_30px_rgba(96,0,24,0.02)] flex-1 flex flex-col">
+                    <h3 class="font-title-lg text-title-lg text-on-background mb-4">Orders by Category</h3>
+                    <div class="flex-1 flex items-center justify-center relative">
+                        <!-- CSS Mock Pie Chart -->
+                        <div class="w-32 h-32 rounded-full relative"
+                            style="background: conic-gradient(#600018 0% 45%, #C5B358 45% 75%, #eae8e7 75% 100%);">
+                            <!-- Inner circle for donut hole -->
+                            <div
+                                class="absolute inset-0 m-auto w-20 h-20 bg-surface-container-lowest rounded-full flex flex-col items-center justify-center">
+                                <span class="font-headline-md text-[18px] text-on-background">1.4k</span>
+                                <span class="text-[10px] text-on-surface-variant font-label-caps uppercase">Total</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 space-y-2">
+                        <div class="flex justify-between items-center text-body-md font-body-md">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-sm bg-heritage-burgundy"></div>
+                                <span class="text-on-background">Silk Sarees</span>
+                            </div>
+                            <span class="font-data-tabular text-data-tabular">45%</span>
+                        </div>
+                        <div class="flex justify-between items-center text-body-md font-body-md">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-sm bg-muted-gold"></div>
+                                <span class="text-on-background">Lehengas</span>
+                            </div>
+                            <span class="font-data-tabular text-data-tabular">30%</span>
+                        </div>
+                        <div class="flex justify-between items-center text-body-md font-body-md">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-sm bg-surface-container-high"></div>
+                                <span class="text-on-background">Kurtis &amp; Sets</span>
+                            </div>
+                            <span class="font-data-tabular text-data-tabular">25%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Recent Orders Table -->
+        <div
+            class="bg-surface-container-lowest rounded-xl border border-border-subtle shadow-[0px_10px_30px_rgba(96,0,24,0.02)] overflow-hidden">
+            <div class="p-6 border-b border-border-subtle flex justify-between items-center bg-warm-ivory">
+                <h3 class="font-title-lg text-title-lg text-on-background">Recent Orders</h3>
+                <button
+                    class="text-heritage-burgundy hover:text-primary font-body-md text-body-md underline decoration-border-subtle hover:decoration-heritage-burgundy underline-offset-4 transition-all">
+                    View All
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-warm-ivory border-b border-border-subtle">
+                            <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant font-medium">
+                                Order ID</th>
+                            <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant font-medium">
+                                Customer</th>
+                            <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant font-medium">
+                                Date</th>
+                            <th
+                                class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant font-medium text-right">
+                                Amount</th>
+                            <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant font-medium">
+                                Status</th>
+                            <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant font-medium">
+                                Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="font-body-md text-body-md text-on-background divide-y divide-border-subtle">
+                        <!-- Row 1 -->
+                        <tr class="hover:bg-surface-container-low/50 transition-colors">
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular">#ORD-9024</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-cream-silk flex items-center justify-center text-heritage-burgundy font-medium text-xs">
+                                        AK
+                                    </div>
+                                    <span>Ananya Kapoor</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular text-on-surface-variant">Oct 24,
+                                2024</td>
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular text-right">₹24,500</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-container text-on-secondary-container">
+                                    Pending
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button class="text-on-surface-variant hover:text-heritage-burgundy transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="hover:bg-surface-container-low/50 transition-colors">
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular">#ORD-9023</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-medium text-xs">
+                                        MS
+                                    </div>
+                                    <span>Meera Sharma</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular text-on-surface-variant">Oct 24,
+                                2024</td>
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular text-right">₹12,800</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-container-high text-on-surface-variant">
+                                    Shipped
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button class="text-on-surface-variant hover:text-heritage-burgundy transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="hover:bg-surface-container-low/50 transition-colors">
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular">#ORD-9022</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-medium text-xs">
+                                        RD
+                                    </div>
+                                    <span>Riya Desai</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular text-on-surface-variant">Oct 23,
+                                2024</td>
+                            <td class="px-6 py-4 font-data-tabular text-data-tabular text-right">₹8,950</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-container-highest text-on-background border border-border-subtle">
+                                    Delivered
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <button class="text-on-surface-variant hover:text-heritage-burgundy transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
