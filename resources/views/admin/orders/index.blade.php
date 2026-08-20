@@ -6,6 +6,12 @@
                 <h1 class="font-headline-lg text-heritage-burgundy">Customer Orders</h1>
                 <p class="font-body-md text-xs text-on-surface-variant mt-1">Track, process, and manage customer orders and shipment fulfillment.</p>
             </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.export.orders') }}" class="px-4 py-2.5 bg-surface-container border border-border-subtle rounded-xl text-xs font-label-caps uppercase font-bold text-charcoal-text hover:bg-surface-container-high transition-colors flex items-center gap-1.5 shadow-xs">
+                    <span class="material-symbols-outlined text-base">download</span>
+                    <span>Export CSV</span>
+                </a>
+            </div>
         </div>
 
         @if(session('success'))

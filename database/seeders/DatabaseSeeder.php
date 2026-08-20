@@ -3,11 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Review;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\Wishlist;
 use App\Models\YouTubeVideo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -146,10 +149,10 @@ class DatabaseSeeder extends Seeder
                 ],
                 'sizes' => ['S', 'M', 'L', 'XL', 'CUSTOM FIT'],
                 'colors' => ['Crimson Red', 'Maroon Gold'],
-                'description' => 'Embrace the grandeur of heritage with our Royal Banarasi Lacha. Handwoven with intricate zari motifs that tell tales of traditional craftsmanship, this ensemble is designed for the modern woman who roots for her culture. Includes skirt flare, matching blouse piece, and rich dupatta.',
-                'fabric_care' => 'Pure Katan Silk & Zari Weave. Dry Clean Only. Store wrapped in muslin cloth away from direct sunlight to preserve gold luster.',
-                'shipping_info' => 'Free insured shipping across India. Dispatches in 24-48 hours. Express delivery available within 3-5 business days.',
-                'rating' => 4.85,
+                'description' => 'Embrace the grandeur of heritage with our Royal Banarasi Lacha. Handwoven with intricate zari motifs that tell tales of traditional craftsmanship, this ensemble is designed for the modern woman who roots for her culture.',
+                'fabric_care' => 'Pure Katan Silk & Zari Weave. Dry Clean Only.',
+                'shipping_info' => 'Free insured shipping across India. Dispatches in 24-48 hours.',
+                'rating' => 4.95,
                 'reviews_count' => 42,
                 'is_featured' => true,
                 'is_active' => true,
@@ -195,14 +198,11 @@ class DatabaseSeeder extends Seeder
                 'stock' => 3,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuAeKcdH3O6KmP4to6RVVfVDcxytUMZJAJyoTRlHrqZrBsx5-tbJiaapQbGwtQ_rjFfi3c28zXjSuUfQRhYyFEwlVywl-KSp2bEQGaDdceZ2E4-cVYxHmLdGZGQv6S3mLv1kdZQ5AsaYrMlbpQuvFQzz3kUICDHnvrgDIfempAh6GV5f5trqLcO4LIyWxxLN0CAnBhmeDHrod9KksRnGSS8DoU6fd2Jt9e8KUhB3WhpO_HagwgSKG0XP',
-                'gallery_images' => [
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuAeKcdH3O6KmP4to6RVVfVDcxytUMZJAJyoTRlHrqZrBsx5-tbJiaapQbGwtQ_rjFfi3c28zXjSuUfQRhYyFEwlVywl-KSp2bEQGaDdceZ2E4-cVYxHmLdGZGQv6S3mLv1kdZQ5AsaYrMlbpQuvFQzz3kUICDHnvrgDIfempAh6GV5f5trqLcO4LIyWxxLN0CAnBhmeDHrod9KksRnGSS8DoU6fd2Jt9e8KUhB3WhpO_HagwgSKG0XP',
-                ],
                 'sizes' => ['S', 'M', 'L', 'CUSTOM FIT'],
                 'colors' => ['Midnight Navy', 'Royal Emerald'],
                 'description' => 'Heavy micro-velvet bridal lehenga adorned with antique copper zardosi, resham threadwork, and dual dupattas.',
-                'fabric_care' => 'Micro Velvet with Pure Silk Lining. Professional dry clean only.',
-                'shipping_info' => 'Ships within 7-10 business days due to custom tailoring and finish.',
+                'fabric_care' => 'Micro Velvet with Pure Silk Lining. Dry clean only.',
+                'shipping_info' => 'Ships within 7-10 business days.',
                 'rating' => 5.00,
                 'reviews_count' => 19,
                 'is_featured' => true,
@@ -222,14 +222,11 @@ class DatabaseSeeder extends Seeder
                 'stock' => 25,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuBIDH9jrnfx-Y87AR62nOCxAgCBYlNZY8ZNe2mTA-HuJlwpKwC7p-WxYKNqALvq09oy8zuIzlM7ngqJMLUm8gE_nTbT_3nbAaG0wot8oR-h67-QAck_FOrTpareakstfpQycSQat0iH10fRZJ6Sle1mHsWIUCU914n7IdOsFDEAIQVDAVQDc1urku1bWqmCbRndffJvtyQF0bmFNt1Bj6OnfvrgR2qh2UZ4Wzjtaf2mTzQNFWno2tH5',
-                'gallery_images' => [
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuBIDH9jrnfx-Y87AR62nOCxAgCBYlNZY8ZNe2mTA-HuJlwpKwC7p-WxYKNqALvq09oy8zuIzlM7ngqJMLUm8gE_nTbT_3nbAaG0wot8oR-h67-QAck_FOrTpareakstfpQycSQat0iH10fRZJ6Sle1mHsWIUCU914n7IdOsFDEAIQVDAVQDc1urku1bWqmCbRndffJvtyQF0bmFNt1Bj6OnfvrgR2qh2UZ4Wzjtaf2mTzQNFWno2tH5',
-                ],
                 'sizes' => ['S', 'M', 'L', 'XL', 'XXL'],
                 'colors' => ['Ivory Gold', 'Cream'],
                 'description' => 'A timeless festive staple made of pure Chanderi silk with gota patti detailing and soft mulmul lining.',
                 'fabric_care' => 'Pure Chanderi Silk. Hand wash gently or dry clean.',
-                'shipping_info' => 'Ready to ship in 24 hours. Delivery in 2-4 business days.',
+                'shipping_info' => 'Ready to ship in 24 hours.',
                 'rating' => 4.70,
                 'reviews_count' => 34,
                 'is_featured' => false,
@@ -249,9 +246,6 @@ class DatabaseSeeder extends Seeder
                 'stock' => 12,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuDVhYBdFI1vfJsgAs_gFO8zI1knqzoSjGKuVL3DcPt-x_2lsRuGqPBBNXiJq5F8c7MjhuhXOKTBupxRfVf7QhV8D-hPb1ms1NOLKciVoQbSdhk9riwAeftjvwxxEPODk3A3wmPn2ZcetXKbB_hulwvTS8u6Fr2UfbwL60MtdKKLa0ZQHnUoIDGO0Qu0xS3z6ICJ87lkWiGdhArEPLamFgcIizGgX6d45ygOmqq41pF9BOWjXTJg2OCs',
-                'gallery_images' => [
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuDVhYBdFI1vfJsgAs_gFO8zI1knqzoSjGKuVL3DcPt-x_2lsRuGqPBBNXiJq5F8c7MjhuhXOKTBupxRfVf7QhV8D-hPb1ms1NOLKciVoQbSdhk9riwAeftjvwxxEPODk3A3wmPn2ZcetXKbB_hulwvTS8u6Fr2UfbwL60MtdKKLa0ZQHnUoIDGO0Qu0xS3z6ICJ87lkWiGdhArEPLamFgcIizGgX6d45ygOmqq41pF9BOWjXTJg2OCs',
-                ],
                 'sizes' => ['FREE SIZE (2.5M)'],
                 'colors' => ['Emerald Green', 'Forest Green'],
                 'description' => 'Handcrafted pure georgette dupatta with badla mukaish dots and gold kiran border.',
@@ -276,9 +270,6 @@ class DatabaseSeeder extends Seeder
                 'stock' => 14,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCmX3_EvRyDL3WpgXirkY56i4ohd-PD48ZmWVZ_17RWWxRznRi4aI74bDhR8emqdGsOsDC1S5Crj_PheEvYwzfa3cIoDHzjlsIS_sT1GmqJw56rhOfLELoqfPPGASRjcVAuoHFt3JckUbqgs-dzp4bmBOszNGGiHh7fS7e61Ll7_2YZqmGMn4awBcf8yJqyvYh6tgQTmDNakvH1S0KLVeokWrl8nFb9eusJ2DnIDrPKTYjRHaZXHxX_',
-                'gallery_images' => [
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuCmX3_EvRyDL3WpgXirkY56i4ohd-PD48ZmWVZ_17RWWxRznRi4aI74bDhR8emqdGsOsDC1S5Crj_PheEvYwzfa3cIoDHzjlsIS_sT1GmqJw56rhOfLELoqfPPGASRjcVAuoHFt3JckUbqgs-dzp4bmBOszNGGiHh7fS7e61Ll7_2YZqmGMn4awBcf8yJqyvYh6tgQTmDNakvH1S0KLVeokWrl8nFb9eusJ2DnIDrPKTYjRHaZXHxX_',
-                ],
                 'sizes' => ['FREE SIZE'],
                 'colors' => ['Mustard Gold', 'Marigold Yellow'],
                 'description' => 'Traditional festive regional drape featuring authentic hand-block prints and auspicious gold border.',
@@ -302,7 +293,7 @@ class DatabaseSeeder extends Seeder
                 'thumbnail' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzQlvbBZ_7sBoCi083plH6_cPAtuOm2s7NPLKZvmSANG7K09ZNrbIPDaRZCkHMnYdK27C5TsIL0IOnTFP5X3MKW2S1Tt2ghmuhABQx-O9imTL5wVx3mYlYDB7UVKvnN9d7TXVBTsAdUJiaERBH9U4EeaGmi_uhOjXssQaxKzlTvliMn39rAXx8AP2RLguYT9l-4m0lZvtDCulkHmZgjl9q6W1CFaItU1CirxuXldi197muluEMndo5',
                 'duration' => '14:20',
                 'views_text' => '48K views',
-                'description' => 'Deep dive into handwoven Katan silk, intricate zardosi craftsmanship, and draping masterclasses by our lead stylists.',
+                'description' => 'Deep dive into handwoven Katan silk, intricate zardosi craftsmanship, and draping masterclasses.',
                 'is_hero' => true,
                 'is_trending' => true,
                 'is_lookbook' => false,
@@ -312,46 +303,74 @@ class DatabaseSeeder extends Seeder
         );
         $vHero->products()->sync([$p1->id, $p2->id]);
 
-        $v1 = YouTubeVideo::updateOrCreate(
-            ['slug' => 'bridal-lehenga-styling-masterclass'],
+        // 7. Seed Database Coupons
+        Coupon::updateOrCreate(
+            ['code' => 'WELCOME10'],
             [
-                'title' => 'Bridal Lehenga Styling & Draping Masterclass',
-                'youtube_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                'youtube_id' => 'dQw4w9WgXcQ',
-                'thumbnail' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzQlvbBZ_7sBoCi083plH6_cPAtuOm2s7NPLKZvmSANG7K09ZNrbIPDaRZCkHMnYdK27C5TsIL0IOnTFP5X3MKW2S1Tt2ghmuhABQx-O9imTL5wVx3mYlYDB7UVKvnN9d7TXVBTsAdUJiaERBH9U4EeaGmi_uhOjXssQaxKzlTvliMn39rAXx8AP2RLguYT9l-4m0lZvtDCulkHmZgjl9q6W1CFaItU1CirxuXldi197muluEMndo5',
-                'duration' => '12:45',
-                'views_text' => '45K views',
-                'description' => 'Learn how to drape double dupattas and style heavy bridal velvet lehengas for grand wedding receptions.',
-                'is_hero' => false,
-                'is_trending' => false,
-                'is_lookbook' => true,
-                'display_order' => 2,
+                'type' => 'percent',
+                'value' => 10.00,
+                'min_order_amount' => 0.00,
+                'description' => '10% Welcome First Order Savings',
                 'is_active' => true,
             ]
         );
-        $v1->products()->sync([$p3->id, $p1->id]);
 
-        $v2 = YouTubeVideo::updateOrCreate(
-            ['slug' => 'pure-silk-lacha-draping-guide'],
+        Coupon::updateOrCreate(
+            ['code' => 'HERITAGE20'],
             [
-                'title' => 'Pure Silk Lacha Draping & Heritage Saree Guide',
-                'youtube_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                'youtube_id' => 'dQw4w9WgXcQ',
-                'thumbnail' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuDd6alUz92TMFGrRS_F-AyB4F6wfWr5T1s7_8Z6joB_f_8KqIBQ9nWxH8CZbkjWMVWGt4AVpfm1-ZmKqb7ns46wDiRhMgUQstOyHDl-2XYoAPLYLZtvV9C5EdEn-3sg2nTTLyf-aGOUu6PtFAVAcMwtkKM8h49ozekkwdv5dRoQCnbKZtGa2ZA77v3s2ZzjHPHy92F4EoedXSfYA6T4rz96loWptqbICZJ_pk_xAk4FiiyyPFZdGDUL',
-                'duration' => '08:30',
-                'views_text' => '28K views',
-                'description' => 'Effortless traditional pleating techniques for high flare Banarasi Lachas.',
-                'is_hero' => false,
-                'is_trending' => false,
-                'is_lookbook' => true,
-                'display_order' => 3,
+                'type' => 'percent',
+                'value' => 20.00,
+                'min_order_amount' => 5000.00,
+                'description' => '20% Grand Heritage Festive Discount',
                 'is_active' => true,
             ]
         );
-        $v2->products()->sync([$p1->id, $p6->id]);
 
-        // 7. Seed Orders
-        // Seed order ORD-8829
+        Coupon::updateOrCreate(
+            ['code' => 'ROYAL5000'],
+            [
+                'type' => 'fixed',
+                'value' => 5000.00,
+                'min_order_amount' => 25000.00,
+                'description' => 'Flat ₹5,000 OFF on Luxury Bridal Ensembles above ₹25,000',
+                'is_active' => true,
+            ]
+        );
+
+        // 8. Seed Wishlist Items
+        Wishlist::firstOrCreate(['user_id' => $customer1->id, 'product_id' => $p3->id]);
+        Wishlist::firstOrCreate(['user_id' => $customer1->id, 'product_id' => $p2->id]);
+
+        // 9. Seed Customer Reviews with Photos
+        Review::updateOrCreate(
+            ['product_id' => $p1->id, 'customer_name' => 'Ananya Sharma'],
+            [
+                'user_id' => $customer1->id,
+                'rating' => 5,
+                'title' => 'Absolute Royal Perfection! Looked incredible at my reception.',
+                'comment' => 'The fabric luster of pure Katan silk is breathtaking. The zari borders are woven with sheer precision and the flare is majestic. Truly a heirloom piece from Sonakshi!',
+                'photos' => [
+                    'https://lh3.googleusercontent.com/aida-public/AB6AXuBHo2AI-nuhCDtY7OqAzC7IuIQinAr6fQtpX8m0hWogHweqDrvQyU1BS5Y83-MMJOBkKtlKnvaqO5iBdPxGPekyDKAKl4k711cKT2TqACShhWws87SUjzduLOk9ZJAPsri35wMSmkCCZX3rl8ZmGf24drcMIPch3PLxunrxx0DwjrWT8JBPX4KuyCgkXUXxkMckXHk8Q7BDImoU-UCR05O4GD6O45E4mLyPPypNlRM9jK3Dc6vshirC',
+                ],
+                'is_verified_buyer' => true,
+                'is_approved' => true,
+            ]
+        );
+
+        Review::updateOrCreate(
+            ['product_id' => $p1->id, 'customer_name' => 'Meera Sharma'],
+            [
+                'user_id' => $customer2->id,
+                'rating' => 5,
+                'title' => 'Custom Fit was tailored to 100% precision',
+                'comment' => 'Opted for Custom Fit with blouse and skirt measurements. The fitting was flawless without requiring any bespoke local alterations. Worth every rupee.',
+                'photos' => [],
+                'is_verified_buyer' => true,
+                'is_approved' => true,
+            ]
+        );
+
+        // 10. Seed Historical Orders
         $ord8829 = Order::updateOrCreate(
             ['order_number' => 'ORD-8829'],
             [
@@ -372,6 +391,9 @@ class DatabaseSeeder extends Seeder
                 'shipping_fee' => 0.00,
                 'total_amount' => 21050.00,
                 'status' => 'processing',
+                'courier_name' => 'BlueDart Express',
+                'tracking_number' => 'AWB-88392019',
+                'tracking_url' => 'https://www.bluedart.com',
             ]
         );
 
@@ -382,8 +404,15 @@ class DatabaseSeeder extends Seeder
                 'product_sku' => 'SS-BAN-01',
                 'price' => 12499.00,
                 'quantity' => 1,
-                'size' => 'M',
+                'size' => 'CUSTOM FIT',
                 'color' => 'Crimson Red',
+                'custom_measurements' => [
+                    'blouse_bust' => 36.0,
+                    'blouse_waist' => 30.0,
+                    'sleeve_length' => 10.5,
+                    'skirt_waist' => 32.0,
+                    'skirt_length' => 42.5,
+                ],
                 'product_image' => $p1->main_image,
                 'total' => 12499.00,
             ]
@@ -403,7 +432,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Seed order ORD-9023
         $ord9023 = Order::updateOrCreate(
             ['order_number' => 'ORD-9023'],
             [
@@ -424,6 +452,9 @@ class DatabaseSeeder extends Seeder
                 'shipping_fee' => 0.00,
                 'total_amount' => 40500.00,
                 'status' => 'shipped',
+                'courier_name' => 'Delhivery Express Air',
+                'tracking_number' => 'DEL-9918239',
+                'tracking_url' => 'https://www.delhivery.com',
             ]
         );
 
@@ -441,7 +472,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Seed order ORD-9022
         $ord9022 = Order::updateOrCreate(
             ['order_number' => 'ORD-9022'],
             [
@@ -462,6 +492,8 @@ class DatabaseSeeder extends Seeder
                 'shipping_fee' => 0.00,
                 'total_amount' => 8950.00,
                 'status' => 'delivered',
+                'courier_name' => 'DTDC Premium Air',
+                'tracking_number' => 'DTDC-7729104',
             ]
         );
 

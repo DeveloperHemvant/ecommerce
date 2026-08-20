@@ -1,31 +1,51 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ExportController as AdminExportController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\YouTubeVideoController as AdminYouTubeVideoController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\ProductDetailController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Storefront Routes
+| Storefront & Public Routes
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::get('/collections', [CollectionsController::class, 'index'])->name('collections');
 Route::get('/shop', [CollectionsController::class, 'index'])->name('shop');
-
 Route::get('/products/{slug?}', [ProductDetailController::class, 'show'])->name('product.detail');
+
+// Live Public Order Tracking
+Route::get('/track-order', [OrderTrackingController::class, 'index'])->name('track.order');
+
+// Customer Reviews Submission
+Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+
+/*
+|--------------------------------------------------------------------------
+| Wishlist Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::post('/wishlist/{product}/move-to-cart', [WishlistController::class, 'moveToCart'])->name('wishlist.move-to-cart');
 
 /*
 |--------------------------------------------------------------------------
@@ -46,11 +66,21 @@ Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->nam
 */
 Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
-
 Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [CustomerAuthController::class, 'register'])->name('register.submit');
-
 Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| Customer Account Portal (Requires Auth)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
+    Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
+    Route::get('/orders/{orderNumber}', [AccountController::class, 'orderDetail'])->name('orders.show');
+    Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
+    Route::post('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -59,13 +89,10 @@ Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout'
 */
 Route::get('/checkout', [CheckoutController::class, 'shipping'])->name('checkout.shipping');
 Route::post('/checkout/shipping', [CheckoutController::class, 'saveShipping'])->name('checkout.shipping.save');
-
 Route::get('/checkout/payment', [CheckoutController::class, 'payment'])->name('checkout.payment');
 Route::post('/checkout/payment', [CheckoutController::class, 'savePayment'])->name('checkout.payment.save');
-
 Route::get('/checkout/review', [CheckoutController::class, 'review'])->name('checkout.review');
 Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place_order');
-
 Route::get('/order-success', [CheckoutController::class, 'orderSuccess'])->name('order.success');
 
 /*
@@ -93,6 +120,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // YouTube Lookbook CMS
         Route::resource('youtube', AdminYouTubeVideoController::class)->except(['show']);
 
+        // Promotional Coupons Engine
+        Route::resource('coupons', AdminCouponController::class)->except(['show']);
+
+        // Customer Reviews Moderation
+        Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+        Route::post('/reviews/{review}/toggle', [AdminReviewController::class, 'toggleApproval'])->name('reviews.toggle');
+        Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+
         // Orders Management
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{orderNumber}', [AdminOrderController::class, 'show'])->name('orders.show');
@@ -101,5 +136,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Customer Directory
         Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
         Route::get('/customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');
+
+        // Data Exports (CSV)
+        Route::get('/export/orders', [AdminExportController::class, 'orders'])->name('export.orders');
+        Route::get('/export/customers', [AdminExportController::class, 'customers'])->name('export.customers');
     });
 });

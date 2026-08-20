@@ -67,6 +67,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get customer wishlist items.
+     */
+    public function wishlists(): HasMany
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Get customer submitted reviews.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
      * Lifetime spend of customer.
      */
     public function getLifetimeSpendAttribute(): float

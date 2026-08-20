@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,7 +25,11 @@ class CartController extends Controller
 
         $discount = 0;
         if ($coupon) {
-            $discount = round(($subtotal * $coupon['percent']) / 100);
+            if (isset($coupon['discount_amount'])) {
+                $discount = (float) $coupon['discount_amount'];
+            } elseif (isset($coupon['percent'])) {
+                $discount = round(($subtotal * $coupon['percent']) / 100);
+            }
         }
 
         $total = max(0, $subtotal - $discount);
@@ -33,7 +38,7 @@ class CartController extends Controller
     }
 
     /**
-     * Add a product to the shopping cart.
+     * Add a product to the shopping cart (supports Custom Fit specs).
      */
     public function add(Request $request): RedirectResponse
     {
@@ -42,6 +47,7 @@ class CartController extends Controller
             'quantity' => ['nullable', 'integer', 'min:1'],
             'size' => ['nullable', 'string', 'max:50'],
             'color' => ['nullable', 'string', 'max:50'],
+            'custom_measurements' => ['nullable', 'array'],
         ]);
 
         $product = Product::findOrFail($validated['product_id']);
@@ -53,8 +59,11 @@ class CartController extends Controller
         $size = $validated['size'] ?? ($product->sizes[0] ?? 'Standard');
         $color = $validated['color'] ?? ($product->colors[0] ?? 'Default');
         $quantity = (int) ($validated['quantity'] ?? 1);
+        $measurements = $validated['custom_measurements'] ?? null;
 
-        $cartKey = "{$product->id}_{$size}";
+        // Key by product_id + size + hash of measurements if custom fit
+        $measurementKey = ! empty($measurements) ? '_'.substr(md5(json_encode($measurements)), 0, 6) : '';
+        $cartKey = "{$product->id}_{$size}{$measurementKey}";
         $cart = session()->get('cart', []);
 
         if (isset($cart[$cartKey])) {
@@ -69,6 +78,7 @@ class CartController extends Controller
                 'image' => $product->main_image,
                 'size' => $size,
                 'color' => $color,
+                'custom_measurements' => $measurements,
                 'quantity' => $quantity,
             ];
         }
@@ -132,7 +142,7 @@ class CartController extends Controller
     }
 
     /**
-     * Apply a discount coupon.
+     * Apply a discount coupon dynamically from DB.
      */
     public function applyCoupon(Request $request): RedirectResponse
     {
@@ -141,26 +151,65 @@ class CartController extends Controller
         ]);
 
         $code = strtoupper(trim($validated['code']));
+        $cart = session()->get('cart', []);
 
+        $subtotal = 0;
+        foreach ($cart as $item) {
+            $subtotal += $item['price'] * $item['quantity'];
+        }
+
+        // 1. Search database for coupon
+        $coupon = Coupon::where('code', $code)->first();
+
+        if ($coupon) {
+            $check = $coupon->isValidFor($subtotal);
+            if (! $check['valid']) {
+                return redirect()->route('cart')->with('error', $check['message']);
+            }
+
+            $discountAmount = $coupon->calculateDiscount($subtotal);
+
+            session()->put('coupon', [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'type' => $coupon->type,
+                'value' => (float) $coupon->value,
+                'discount_amount' => $discountAmount,
+                'percent' => $coupon->type === 'percent' ? (int) $coupon->value : null,
+                'description' => $coupon->description ?? "Coupon {$coupon->code}",
+            ]);
+
+            return redirect()->route('cart')->with('success', "Coupon '{$coupon->code}' applied! You saved ₹".number_format($discountAmount).'.');
+        }
+
+        // 2. Fallback for built-in promo codes
         if ($code === 'WELCOME10') {
+            $discount = round(($subtotal * 10) / 100);
             session()->put('coupon', [
                 'code' => 'WELCOME10',
+                'type' => 'percent',
+                'value' => 10,
                 'percent' => 10,
+                'discount_amount' => $discount,
                 'description' => '10% Welcome Discount',
             ]);
 
             return redirect()->route('cart')->with('success', "Coupon 'WELCOME10' applied! You got 10% OFF.");
         } elseif ($code === 'HERITAGE20') {
+            $discount = round(($subtotal * 20) / 100);
             session()->put('coupon', [
                 'code' => 'HERITAGE20',
+                'type' => 'percent',
+                'value' => 20,
                 'percent' => 20,
+                'discount_amount' => $discount,
                 'description' => '20% Heritage Festive Discount',
             ]);
 
             return redirect()->route('cart')->with('success', "Coupon 'HERITAGE20' applied! You got 20% OFF.");
         }
 
-        return redirect()->route('cart')->with('error', "Invalid coupon code '{$code}'. Try WELCOME10 for 10% off.");
+        return redirect()->route('cart')->with('error', "Invalid coupon code '{$code}'.");
     }
 
     /**

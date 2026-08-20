@@ -19,6 +19,7 @@ class OrderItem extends Model
         'quantity',
         'size',
         'color',
+        'custom_measurements',
         'product_image',
         'total',
     ];
@@ -28,6 +29,7 @@ class OrderItem extends Model
         return [
             'price' => 'decimal:2',
             'quantity' => 'integer',
+            'custom_measurements' => 'array',
             'total' => 'decimal:2',
         ];
     }

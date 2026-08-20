@@ -50,16 +50,22 @@ class OrderController extends Controller
     }
 
     /**
-     * Update the fulfillment status of an order.
+     * Update the fulfillment status and courier tracking info of an order.
      */
     public function updateStatus(Request $request, Order $order): RedirectResponse
     {
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:processing,packed,shipped,delivered,cancelled'],
+            'courier_name' => ['nullable', 'string', 'max:100'],
+            'tracking_number' => ['nullable', 'string', 'max:100'],
+            'tracking_url' => ['nullable', 'string', 'max:500'],
         ]);
 
         $order->update([
             'status' => $validated['status'],
+            'courier_name' => $validated['courier_name'] ?? $order->courier_name,
+            'tracking_number' => $validated['tracking_number'] ?? $order->tracking_number,
+            'tracking_url' => $validated['tracking_url'] ?? $order->tracking_url,
         ]);
 
         return back()->with('success', "Order #{$order->order_number} status updated to '".ucfirst($validated['status'])."'.");

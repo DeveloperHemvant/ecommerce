@@ -30,6 +30,10 @@ class Order extends Model
         'shipping_fee',
         'total_amount',
         'status',
+        'courier_name',
+        'tracking_number',
+        'tracking_url',
+        'estimated_delivery',
         'notes',
     ];
 
@@ -40,6 +44,7 @@ class Order extends Model
             'discount' => 'decimal:2',
             'shipping_fee' => 'decimal:2',
             'total_amount' => 'decimal:2',
+            'estimated_delivery' => 'date',
         ];
     }
 
@@ -57,6 +62,14 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Get reviews linked to this order.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 
     /**

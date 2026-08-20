@@ -45,28 +45,54 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Left Column: Items & Fulfillment (8 Cols) -->
             <div class="lg:col-span-8 space-y-6">
-                <!-- Status Updater Card -->
-                <div class="bg-surface-container-lowest rounded-2xl border border-border-subtle p-6 shadow-xs">
-                    <h2 class="font-title-lg text-sm font-bold text-heritage-burgundy uppercase font-label-caps mb-4">
-                        Update Fulfillment Status
+                <!-- Status & Courier Dispatch Updater Card -->
+                <div class="bg-surface-container-lowest rounded-2xl border border-border-subtle p-6 shadow-xs space-y-4">
+                    <h2 class="font-title-lg text-sm font-bold text-heritage-burgundy uppercase font-label-caps border-b border-border-subtle pb-3">
+                        Fulfillment &amp; Courier Dispatch Details
                     </h2>
 
-                    <form action="{{ route('admin.orders.status', $order) }}" method="POST" class="flex flex-col sm:flex-row items-center gap-3">
+                    <form action="{{ route('admin.orders.status', $order) }}" method="POST" class="space-y-4">
                         @csrf
-                        <select name="status" class="w-full sm:w-auto flex-1 bg-warm-ivory/60 border border-border-subtle rounded-xl px-4 py-2.5 font-body-md text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none">
-                            <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>Processing (Atelier Tailoring)</option>
-                            <option value="packed" {{ $order->status === 'packed' ? 'selected' : '' }}>Packed (Quality Inspected)</option>
-                            <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>Shipped (Dispatched with Courier)</option>
-                            <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered (Complete)</option>
-                            <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                        </select>
-                        <button type="submit" class="w-full sm:w-auto bg-heritage-burgundy text-white font-label-caps text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl hover:bg-primary-container transition-all font-bold cursor-pointer">
-                            Update Status
-                        </button>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-label-caps uppercase text-on-surface-variant font-semibold mb-1">Status</label>
+                                <select name="status" class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl px-3 py-2 text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none">
+                                    <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>Processing (Tailoring)</option>
+                                    <option value="packed" {{ $order->status === 'packed' ? 'selected' : '' }}>Packed (QC Inspected)</option>
+                                    <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>Shipped (Dispatched)</option>
+                                    <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                    <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-label-caps uppercase text-on-surface-variant font-semibold mb-1">Courier Partner</label>
+                                <input type="text" name="courier_name" value="{{ $order->courier_name }}" placeholder="e.g. BlueDart Express"
+                                    class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl px-3 py-2 text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none" />
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-label-caps uppercase text-on-surface-variant font-semibold mb-1">AWB / Tracking Number</label>
+                                <input type="text" name="tracking_number" value="{{ $order->tracking_number }}" placeholder="e.g. AWB-9948291"
+                                    class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl px-3 py-2 text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none font-mono" />
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-label-caps uppercase text-on-surface-variant font-semibold mb-1">Tracking URL</label>
+                                <input type="url" name="tracking_url" value="{{ $order->tracking_url }}" placeholder="https://..."
+                                    class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl px-3 py-2 text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none" />
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-heritage-burgundy text-white font-label-caps text-xs uppercase tracking-wider px-6 py-2.5 rounded-xl hover:bg-primary-container transition-all font-bold cursor-pointer shadow-xs">
+                                Update Fulfillment &amp; Tracking
+                            </button>
+                        </div>
                     </form>
                 </div>
 
-                <!-- Items Ordered Table -->
+                <!-- Items Ordered Table with Custom Fit Specs -->
                 <div class="bg-surface-container-lowest rounded-2xl border border-border-subtle shadow-xs overflow-hidden">
                     <div class="p-5 border-b border-border-subtle flex justify-between items-center bg-warm-ivory/40">
                         <h3 class="font-headline-md text-base text-charcoal-text">Ordered Line Items ({{ $order->items->count() }})</h3>
@@ -78,7 +104,7 @@
                             <thead>
                                 <tr class="border-b border-border-subtle text-[11px] font-label-caps text-on-surface-variant uppercase bg-surface-container-low">
                                     <th class="py-3 px-5">Product Ensemble</th>
-                                    <th class="py-3 px-5">SKU</th>
+                                    <th class="py-3 px-5">SKU &amp; Tailoring</th>
                                     <th class="py-3 px-5">Size / Color</th>
                                     <th class="py-3 px-5">Price</th>
                                     <th class="py-3 px-5">Qty</th>
@@ -103,8 +129,17 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="py-4 px-5 font-data-tabular text-on-surface-variant">
+                                        <td class="py-4 px-5 font-data-tabular">
                                             <code>{{ $item->product_sku ?? 'N/A' }}</code>
+
+                                            @if(!empty($item->custom_measurements) && is_array($item->custom_measurements))
+                                                <div class="mt-2 p-2 bg-amber-50 rounded-lg border border-amber-200 text-[10px] space-y-0.5 max-w-xs">
+                                                    <p class="font-bold text-amber-900 uppercase">Atelier Custom Specs:</p>
+                                                    @foreach($item->custom_measurements as $mKey => $mVal)
+                                                        <p class="text-amber-800"><span class="capitalize">{{ str_replace('_', ' ', $mKey) }}</span>: <strong>{{ $mVal }} in</strong></p>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         </td>
                                         <td class="py-4 px-5">
                                             <span class="font-bold text-charcoal-text">{{ $item->size ?? 'Standard' }}</span>
@@ -158,7 +193,7 @@
                     <div class="flex justify-between items-center border-b border-border-subtle pb-3">
                         <h3 class="font-title-lg text-xs font-bold text-heritage-burgundy uppercase font-label-caps">Customer Profile</h3>
                         @if($order->user)
-                            <a href="{{ route('admin.customers.show', $order->user) }}" class="text-xs font-label-caps text-heritage-burgundy hover:underline">View History</a>
+                            <a href="{{ route('admin.customers.show', $order->user) }}" class="text-xs font-label-caps text-heritage-burgundy hover:underline font-bold">View History &rarr;</a>
                         @endif
                     </div>
 

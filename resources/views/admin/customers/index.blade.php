@@ -6,6 +6,12 @@
                 <h1 class="font-headline-lg text-heritage-burgundy">Customer Directory</h1>
                 <p class="font-body-md text-xs text-on-surface-variant mt-1">Manage registered customers, view purchasing activity, and track VIP lifetime spending.</p>
             </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.export.customers') }}" class="px-4 py-2.5 bg-surface-container border border-border-subtle rounded-xl text-xs font-label-caps uppercase font-bold text-charcoal-text hover:bg-surface-container-high transition-colors flex items-center gap-1.5 shadow-xs">
+                    <span class="material-symbols-outlined text-base">download</span>
+                    <span>Export CSV</span>
+                </a>
+            </div>
         </div>
 
         <!-- Filter & Search Bar -->

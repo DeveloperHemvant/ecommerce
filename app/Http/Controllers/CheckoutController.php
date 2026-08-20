@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -31,7 +32,7 @@ class CheckoutController extends Controller
 
         $coupon = session()->get('coupon');
         $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $coupon ? round(($subtotal * $coupon['percent']) / 100) : 0;
+        $discount = $this->calculateDiscount($coupon, $subtotal);
         $total = max(0, $subtotal - $discount);
 
         $savedShipping = session()->get('checkout.shipping', []);
@@ -84,7 +85,7 @@ class CheckoutController extends Controller
 
         $coupon = session()->get('coupon');
         $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $coupon ? round(($subtotal * $coupon['percent']) / 100) : 0;
+        $discount = $this->calculateDiscount($coupon, $subtotal);
         $total = max(0, $subtotal - $discount);
 
         $selectedPayment = session()->get('checkout.payment', 'UPI');
@@ -129,7 +130,7 @@ class CheckoutController extends Controller
 
         $coupon = session()->get('coupon');
         $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $coupon ? round(($subtotal * $coupon['percent']) / 100) : 0;
+        $discount = $this->calculateDiscount($coupon, $subtotal);
         $total = max(0, $subtotal - $discount);
 
         return view('checkout.review', compact('cart', 'shipping', 'paymentMethod', 'coupon', 'subtotal', 'discount', 'total'));
@@ -158,10 +159,10 @@ class CheckoutController extends Controller
         $coupon = session()->get('coupon');
 
         $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $coupon ? round(($subtotal * $coupon['percent']) / 100) : 0;
+        $discount = $this->calculateDiscount($coupon, $subtotal);
         $total = max(0, $subtotal - $discount);
 
-        $order = DB::transaction(function () use ($shipping, $paymentMethod, $subtotal, $discount, $total, $cart) {
+        $order = DB::transaction(function () use ($shipping, $paymentMethod, $subtotal, $discount, $total, $cart, $coupon) {
             $orderNumber = Order::generateOrderNumber();
             $transactionId = $paymentMethod === 'COD' ? null : 'TXN'.rand(10000000, 99999999);
             $paymentStatus = $paymentMethod === 'COD' ? 'pending' : 'paid';
@@ -187,6 +188,11 @@ class CheckoutController extends Controller
                 'status' => 'processing',
             ]);
 
+            // Increment coupon usage count if database coupon was used
+            if (! empty($coupon['id'])) {
+                Coupon::where('id', $coupon['id'])->increment('used_count');
+            }
+
             foreach ($cart as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -197,6 +203,7 @@ class CheckoutController extends Controller
                     'quantity' => $item['quantity'],
                     'size' => $item['size'] ?? null,
                     'color' => $item['color'] ?? null,
+                    'custom_measurements' => $item['custom_measurements'] ?? null,
                     'product_image' => $item['image'] ?? null,
                     'total' => $item['price'] * $item['quantity'],
                 ]);
@@ -232,5 +239,25 @@ class CheckoutController extends Controller
         $order = Order::where('order_number', $orderNumber)->with('items.product')->firstOrFail();
 
         return view('order-success', compact('order'));
+    }
+
+    /**
+     * Calculate discount amount safely based on coupon session payload.
+     */
+    private function calculateDiscount(?array $coupon, float $subtotal): float
+    {
+        if (! $coupon) {
+            return 0.00;
+        }
+
+        if (isset($coupon['discount_amount'])) {
+            return (float) $coupon['discount_amount'];
+        }
+
+        if (isset($coupon['percent'])) {
+            return round(($subtotal * $coupon['percent']) / 100, 2);
+        }
+
+        return 0.00;
     }
 }

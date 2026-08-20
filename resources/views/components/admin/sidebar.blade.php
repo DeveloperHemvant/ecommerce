@@ -50,6 +50,18 @@
             <span>Orders</span>
         </a>
 
+        <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {{ $active === 'coupons' ? 'bg-primary text-on-primary font-medium translate-x-1 shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-heritage-burgundy' }}"
+            href="{{ route('admin.coupons.index') }}">
+            <span class="material-symbols-outlined text-xl" @if($active === 'coupons') data-weight="fill" style="font-variation-settings: 'FILL' 1;" @endif>confirmation_number</span>
+            <span>Coupons</span>
+        </a>
+
+        <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {{ $active === 'reviews' ? 'bg-primary text-on-primary font-medium translate-x-1 shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-heritage-burgundy' }}"
+            href="{{ route('admin.reviews.index') }}">
+            <span class="material-symbols-outlined text-xl" @if($active === 'reviews') data-weight="fill" style="font-variation-settings: 'FILL' 1;" @endif>rate_review</span>
+            <span>Reviews</span>
+        </a>
+
         <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {{ $active === 'customers' ? 'bg-primary text-on-primary font-medium translate-x-1 shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-heritage-burgundy' }}"
             href="{{ route('admin.customers.index') }}">
             <span class="material-symbols-outlined text-xl" @if($active === 'customers') data-weight="fill" style="font-variation-settings: 'FILL' 1;" @endif>group</span>
