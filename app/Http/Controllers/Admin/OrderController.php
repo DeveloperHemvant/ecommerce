@@ -64,8 +64,19 @@ class OrderController extends Controller
             'tracking_url' => ['nullable', 'string', 'max:500'],
         ]);
 
+        $paymentStatus = $order->payment_status;
+
+        // COD orders sit at payment_status=pending until cash is actually
+        // collected, which happens at delivery — without this, COD revenue
+        // (the majority of orders for this market) would never appear as
+        // "paid" anywhere, including every report on this page.
+        if ($validated['status'] === 'delivered' && $order->payment_method === 'COD' && $order->payment_status === 'pending') {
+            $paymentStatus = 'paid';
+        }
+
         $order->update([
             'status' => $validated['status'],
+            'payment_status' => $paymentStatus,
             'courier_name' => $validated['courier_name'] ?? $order->courier_name,
             'tracking_number' => $validated['tracking_number'] ?? $order->tracking_number,
             'tracking_url' => $validated['tracking_url'] ?? $order->tracking_url,

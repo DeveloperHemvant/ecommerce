@@ -19,6 +19,7 @@ class Product extends Model
         'sku',
         'price',
         'compare_price',
+        'cost_price',
         'stock',
         'low_stock_threshold',
         'main_image',
@@ -40,6 +41,7 @@ class Product extends Model
         return [
             'price' => 'decimal:2',
             'compare_price' => 'decimal:2',
+            'cost_price' => 'decimal:2',
             'stock' => 'integer',
             'low_stock_threshold' => 'integer',
             'gallery_images' => 'array',

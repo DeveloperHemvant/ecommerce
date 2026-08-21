@@ -215,6 +215,9 @@ class OrderFulfillmentService
 
     private function createOrderItems(Order $order, array $cart): void
     {
+        $productIds = collect($cart)->pluck('product_id')->filter()->unique();
+        $costPrices = Product::whereIn('id', $productIds)->pluck('cost_price', 'id');
+
         foreach ($cart as $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -222,6 +225,9 @@ class OrderFulfillmentService
                 'product_name' => $item['name'],
                 'product_sku' => $item['sku'] ?? null,
                 'price' => $item['price'],
+                // Snapshotted now, same as price, so profit on this order stays
+                // accurate later even if the product's cost price changes.
+                'cost_price' => ! empty($item['product_id']) ? ($costPrices[$item['product_id']] ?? null) : null,
                 'quantity' => $item['quantity'],
                 'size' => $item['size'] ?? null,
                 'color' => $item['color'] ?? null,

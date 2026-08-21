@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ExportController as AdminExportController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\YouTubeVideoController as AdminYouTubeVideoController;
 use App\Http\Controllers\Auth\CustomerAuthController;
@@ -189,6 +190,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+
+        // Financial Reports
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
 
         // Category Management
         Route::resource('categories', AdminCategoryController::class)->except(['show']);
