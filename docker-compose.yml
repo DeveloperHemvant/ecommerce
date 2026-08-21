@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ecomm:
+    image: 463064778855.dkr.ecr.ap-south-1.amazonaws.com/ecomm:latest
+    container_name: ecomm
+    ports:
+      - "3002:3000"
+    restart: unless-stopped
+    networks:
+      - ecomm_network
+
+networks:
+  ecomm_network:
+    driver: bridge
