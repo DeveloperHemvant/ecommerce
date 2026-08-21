@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductDetailController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -63,6 +65,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/collections', [CollectionsController::class, 'index'])->name('collections');
 Route::get('/shop', [CollectionsController::class, 'index'])->name('shop');
 Route::get('/products/{slug?}', [ProductDetailController::class, 'show'])->name('product.detail');
+Route::get('/search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
 
 // Company & Information Pages
 Route::get('/about-us', [PageController::class, 'about'])->name('about');
@@ -108,10 +111,15 @@ Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->nam
 |--------------------------------------------------------------------------
 */
 Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
+Route::post('/login', [CustomerAuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
 Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [CustomerAuthController::class, 'register'])->name('register.submit');
+Route::post('/register', [CustomerAuthController::class, 'register'])->middleware('throttle:5,1')->name('register.submit');
 Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
+
+Route::get('/forgot-password', [CustomerAuthController::class, 'showForgotPassword'])->name('password.request');
+Route::post('/forgot-password', [CustomerAuthController::class, 'sendResetLink'])->middleware('throttle:5,1')->name('password.email');
+Route::get('/reset-password/{token}', [CustomerAuthController::class, 'showResetPassword'])->name('password.reset');
+Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword'])->middleware('throttle:5,1')->name('password.update');
 
 /*
 |--------------------------------------------------------------------------
@@ -136,6 +144,7 @@ Route::get('/checkout/payment', [CheckoutController::class, 'payment'])->name('c
 Route::post('/checkout/payment', [CheckoutController::class, 'savePayment'])->name('checkout.payment.save');
 Route::get('/checkout/review', [CheckoutController::class, 'review'])->name('checkout.review');
 Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place_order');
+Route::post('/checkout/payment/verify', [CheckoutController::class, 'verifyPayment'])->name('checkout.payment.verify');
 Route::get('/order-success', [CheckoutController::class, 'orderSuccess'])->name('order.success');
 
 /*
@@ -146,7 +155,7 @@ Route::get('/order-success', [CheckoutController::class, 'orderSuccess'])->name(
 Route::prefix('admin')->name('admin.')->group(function () {
     // Admin Guest Routes
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
+    Route::post('/login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     // Admin Protected Routes
@@ -165,6 +174,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Promotional Coupons Engine
         Route::resource('coupons', AdminCouponController::class)->except(['show']);
+
+        // Contact Enquiries
+        Route::get('/contact-messages', [AdminContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::post('/contact-messages/{contactMessage}/read', [AdminContactMessageController::class, 'markRead'])->name('contact-messages.read');
+        Route::delete('/contact-messages/{contactMessage}', [AdminContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
 
         // Customer Reviews Moderation
         Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');

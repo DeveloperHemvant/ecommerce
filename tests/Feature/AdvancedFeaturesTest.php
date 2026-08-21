@@ -169,7 +169,7 @@ test('custom fit measurements are stored in cart and order item', function () {
         'postal_code' => '221001',
     ]);
 
-    $this->actingAs($customer)->post('/checkout/payment', ['payment_method' => 'UPI']);
+    $this->actingAs($customer)->post('/checkout/payment', ['payment_method' => 'COD']);
     $this->actingAs($customer)->post('/checkout/place-order');
 
     $orderItem = OrderItem::first();

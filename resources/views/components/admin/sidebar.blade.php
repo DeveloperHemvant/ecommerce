@@ -68,6 +68,12 @@
             <span>Customers</span>
         </a>
 
+        <a class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {{ $active === 'messages' ? 'bg-primary text-on-primary font-medium translate-x-1 shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-heritage-burgundy' }}"
+            href="{{ route('admin.contact-messages.index') }}">
+            <span class="material-symbols-outlined text-xl" @if($active === 'messages') data-weight="fill" style="font-variation-settings: 'FILL' 1;" @endif>mail</span>
+            <span>Messages</span>
+        </a>
+
         <div class="pt-4 border-t border-border-subtle my-2"></div>
 
         <a class="flex items-center gap-3 px-4 py-3 text-muted-gold hover:text-heritage-burgundy rounded-lg transition-colors"

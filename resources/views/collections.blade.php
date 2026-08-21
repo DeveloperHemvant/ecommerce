@@ -58,35 +58,88 @@
     </section>
 
     <!-- Search & Filter Action Bar (Clean Full-Width Container) -->
-    <div class="bg-surface-container-lowest rounded-2xl border border-border-subtle p-4 md:p-5 shadow-xs mb-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <!-- Search Input -->
-        <form action="{{ route('collections') }}" method="GET" class="relative w-full md:max-w-md flex items-center">
+    <div class="bg-surface-container-lowest rounded-2xl border border-border-subtle p-4 md:p-5 shadow-xs mb-10 space-y-4">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Search Input -->
+            <form action="{{ route('collections') }}" method="GET" class="relative w-full md:max-w-md flex items-center">
+                @if(request('category'))
+                    <input type="hidden" name="category" value="{{ request('category') }}" />
+                @endif
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">search</span>
+                <input
+                    class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl pl-9 pr-4 py-2.5 font-body-md text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none transition-colors placeholder:text-on-surface-variant/60"
+                    placeholder="Search by garment name, fabric, color, or SKU..."
+                    name="search"
+                    value="{{ request('search') }}"
+                    type="text" />
+                @if(request()->anyFilled(['search', 'category', 'min_price', 'max_price', 'size', 'color']))
+                    <a href="{{ route('collections') }}" class="text-xs font-label-caps uppercase text-error hover:underline ml-3 shrink-0 font-bold">Clear</a>
+                @endif
+            </form>
+
+            <!-- Count & Active Filter Indicator -->
+            <div class="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto text-xs">
+                <span class="font-data-tabular text-on-surface-variant">
+                    Showing <strong class="text-heritage-burgundy font-bold">{{ $products->total() }}</strong> {{ Str::plural('piece', $products->total()) }}
+                </span>
+                <div class="h-4 w-px bg-border-subtle hidden sm:block"></div>
+                <div class="flex items-center gap-1 text-on-surface-variant">
+                    <span class="font-label-caps uppercase text-[11px]">Curation:</span>
+                    <span class="font-bold text-charcoal-text">{{ $selectedCategory->name ?? 'All Heritage' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price / Size / Color Filters -->
+        <form action="{{ route('collections') }}" method="GET" class="flex flex-wrap items-end gap-4 pt-4 border-t border-border-subtle">
             @if(request('category'))
                 <input type="hidden" name="category" value="{{ request('category') }}" />
             @endif
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">search</span>
-            <input
-                class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl pl-9 pr-4 py-2.5 font-body-md text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none transition-colors placeholder:text-on-surface-variant/60"
-                placeholder="Search by garment name, fabric, color, or SKU..."
-                name="search"
-                value="{{ request('search') }}"
-                type="text" />
-            @if(request('search') || request('category'))
-                <a href="{{ route('collections') }}" class="text-xs font-label-caps uppercase text-error hover:underline ml-3 shrink-0 font-bold">Clear</a>
+            @if(request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}" />
             @endif
-        </form>
 
-        <!-- Count & Active Filter Indicator -->
-        <div class="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto text-xs">
-            <span class="font-data-tabular text-on-surface-variant">
-                Showing <strong class="text-heritage-burgundy font-bold">{{ $products->count() }}</strong> {{ Str::plural('piece', $products->count()) }}
-            </span>
-            <div class="h-4 w-px bg-border-subtle hidden sm:block"></div>
-            <div class="flex items-center gap-1 text-on-surface-variant">
-                <span class="font-label-caps uppercase text-[11px]">Curation:</span>
-                <span class="font-bold text-charcoal-text">{{ $selectedCategory->name ?? 'All Heritage' }}</span>
+            <div class="flex flex-col gap-1">
+                <label class="font-label-caps text-[10px] uppercase text-on-surface-variant font-semibold">Min Price</label>
+                <input type="number" name="min_price" min="0" value="{{ request('min_price') }}" placeholder="₹0"
+                    class="w-24 bg-warm-ivory/60 border border-border-subtle rounded-lg px-2.5 py-1.5 text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none" />
             </div>
-        </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="font-label-caps text-[10px] uppercase text-on-surface-variant font-semibold">Max Price</label>
+                <input type="number" name="max_price" min="0" value="{{ request('max_price') }}" placeholder="Any"
+                    class="w-24 bg-warm-ivory/60 border border-border-subtle rounded-lg px-2.5 py-1.5 text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none" />
+            </div>
+
+            @if($availableSizes->isNotEmpty())
+                <div class="flex flex-col gap-1">
+                    <label class="font-label-caps text-[10px] uppercase text-on-surface-variant font-semibold">Size</label>
+                    <select name="size" class="w-28 bg-warm-ivory/60 border border-border-subtle rounded-lg px-2.5 py-1.5 text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none">
+                        <option value="">Any Size</option>
+                        @foreach($availableSizes as $size)
+                            <option value="{{ $size }}" {{ request('size') === $size ? 'selected' : '' }}>{{ $size }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
+            @if($availableColors->isNotEmpty())
+                <div class="flex flex-col gap-1">
+                    <label class="font-label-caps text-[10px] uppercase text-on-surface-variant font-semibold">Color</label>
+                    <select name="color" class="w-28 bg-warm-ivory/60 border border-border-subtle rounded-lg px-2.5 py-1.5 text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none">
+                        <option value="">Any Color</option>
+                        @foreach($availableColors as $color)
+                            <option value="{{ $color }}" {{ request('color') === $color ? 'selected' : '' }}>{{ $color }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
+            <button type="submit"
+                class="text-xs font-label-caps uppercase text-white bg-heritage-burgundy px-5 py-2 rounded-lg font-bold hover:bg-primary-container transition-all cursor-pointer">
+                Apply Filters
+            </button>
+        </form>
     </div>
 
     <!-- Product Showcase Catalog Grid (2 cols mobile, 3 tablet, 4 desktop) -->
@@ -183,6 +236,12 @@
                 </div>
             @endforelse
         </div>
+
+        @if($products->hasPages())
+            <div class="mt-10 flex justify-center">
+                {{ $products->links() }}
+            </div>
+        @endif
     </section>
 
     <!-- Trending on YouTube Lookbook (Dynamic from YouTube CMS) -->

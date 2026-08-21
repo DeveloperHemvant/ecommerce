@@ -97,12 +97,19 @@ class Order extends Model
     }
 
     /**
-     * Generate unique order number (e.g. ORD-8829).
+     * Generate a unique order number (e.g. ORD-260821-K3F9).
+     *
+     * Date-prefixed with a random base36 suffix to keep the number short and
+     * readable while giving each day ~1.6M possible combinations, avoiding
+     * the frequent collisions a plain 4-digit random number would hit at scale.
      */
     public static function generateOrderNumber(): string
     {
+        $prefix = 'ORD-'.now()->format('ymd').'-';
+
         do {
-            $number = 'ORD-'.rand(1000, 9999);
+            $suffix = strtoupper(substr(str_shuffle('23456789ABCDEFGHJKLMNPQRSTUVWXYZ'), 0, 4));
+            $number = $prefix.$suffix;
         } while (self::where('order_number', $number)->exists());
 
         return $number;

@@ -203,17 +203,19 @@ class ProductController extends Controller
             'tag_ids.*' => ['exists:tags,id'],
         ]);
 
-        // Handle Main Image (File upload priority over URL)
+        // Handle Main Image (File upload priority over URL) — clean up the old local file if replaced
         $mainImage = $validated['main_image'] ?? $product->main_image;
         if ($request->hasFile('main_image_file')) {
             $path = $request->file('main_image_file')->store('products', 'public');
+            $this->deleteLocalFile($product->main_image);
             $mainImage = Storage::url($path);
         }
 
-        // Handle Video (File upload priority over URL)
+        // Handle Video (File upload priority over URL) — clean up the old local file if replaced
         $videoUrl = $validated['video'] ?? $product->video;
         if ($request->hasFile('video_file')) {
             $videoPath = $request->file('video_file')->store('videos', 'public');
+            $this->deleteLocalFile($product->video);
             $videoUrl = Storage::url($videoPath);
         }
 
@@ -273,8 +275,28 @@ class ProductController extends Controller
     public function destroy(Product $product): RedirectResponse
     {
         $name = $product->name;
+
+        $this->deleteLocalFile($product->main_image);
+        $this->deleteLocalFile($product->video);
+        foreach ($product->gallery_images ?? [] as $image) {
+            $this->deleteLocalFile($image);
+        }
+
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', "Product '{$name}' deleted successfully.");
+    }
+
+    /**
+     * Delete a locally-stored upload (under the "public" disk) if the given
+     * value is a local storage URL. External URLs are left untouched.
+     */
+    private function deleteLocalFile(?string $url): void
+    {
+        if (empty($url) || ! str_starts_with($url, '/storage/')) {
+            return;
+        }
+
+        Storage::disk('public')->delete(substr($url, strlen('/storage/')));
     }
 }

@@ -32,6 +32,26 @@
     </div>
     
     <div class="flex items-center gap-4">
+        <!-- Search -->
+        <div class="relative" id="header-search-widget">
+            <button type="button" id="header-search-toggle"
+                class="text-on-surface-variant hover:text-heritage-burgundy transition-colors duration-300"
+                title="Search Products">
+                <span class="material-symbols-outlined text-xl">search</span>
+            </button>
+
+            <div id="header-search-panel"
+                class="hidden absolute right-0 mt-3 w-[calc(100vw-2.5rem)] max-w-sm bg-surface-container-lowest border border-border-subtle rounded-2xl shadow-lg p-3 z-50">
+                <form action="{{ route('collections') }}" method="GET" class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-base">search</span>
+                    <input type="text" id="header-search-input" name="search" autocomplete="off"
+                        placeholder="Search garments, fabric, SKU..."
+                        class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl pl-9 pr-4 py-2.5 font-body-md text-xs text-charcoal-text focus:border-heritage-burgundy focus:outline-none transition-colors" />
+                </form>
+                <div id="header-search-results" class="mt-2 max-h-80 overflow-y-auto divide-y divide-border-subtle"></div>
+            </div>
+        </div>
+
         <!-- Wishlist -->
         <a href="{{ route('wishlist') }}"
             class="text-on-surface-variant hover:text-heritage-burgundy transition-colors duration-300 font-label-caps text-xs uppercase tracking-widest flex items-center gap-1 relative group"
@@ -83,3 +103,81 @@
         </a>
     </div>
 </header>
+
+<script>
+    (function () {
+        var toggle = document.getElementById('header-search-toggle');
+        var panel = document.getElementById('header-search-panel');
+        var input = document.getElementById('header-search-input');
+        var results = document.getElementById('header-search-results');
+        var debounceTimer = null;
+
+        if (!toggle || !panel || !input || !results) return;
+
+        toggle.addEventListener('click', function () {
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                input.focus();
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!panel.contains(event.target) && !toggle.contains(event.target)) {
+                panel.classList.add('hidden');
+            }
+        });
+
+        input.addEventListener('input', function () {
+            var term = input.value.trim();
+            clearTimeout(debounceTimer);
+
+            if (term.length < 2) {
+                results.innerHTML = '';
+                return;
+            }
+
+            debounceTimer = setTimeout(function () {
+                fetch("{{ route('search.suggest') }}?q=" + encodeURIComponent(term))
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        results.textContent = '';
+                        var items = data.results || [];
+
+                        items.forEach(function (item) {
+                            var link = document.createElement('a');
+                            link.href = item.url;
+                            link.className = 'flex items-center gap-3 py-2 px-1 hover:bg-warm-ivory/60 rounded-lg transition-colors';
+
+                            var img = document.createElement('img');
+                            img.src = item.image;
+                            img.className = 'w-10 h-12 object-cover rounded-lg shrink-0 border border-border-subtle';
+
+                            var textWrap = document.createElement('span');
+                            textWrap.className = 'flex-1 min-w-0';
+
+                            var nameEl = document.createElement('span');
+                            nameEl.className = 'block text-xs font-semibold text-charcoal-text truncate';
+                            nameEl.textContent = item.name;
+
+                            var priceEl = document.createElement('span');
+                            priceEl.className = 'block text-[11px] text-heritage-burgundy font-bold';
+                            priceEl.textContent = item.price;
+
+                            textWrap.appendChild(nameEl);
+                            textWrap.appendChild(priceEl);
+                            link.appendChild(img);
+                            link.appendChild(textWrap);
+                            results.appendChild(link);
+                        });
+
+                        if (items.length === 0) {
+                            var empty = document.createElement('p');
+                            empty.className = 'text-[11px] text-on-surface-variant italic py-2 px-1';
+                            empty.textContent = 'No pieces found.';
+                            results.appendChild(empty);
+                        }
+                    });
+            }, 250);
+        });
+    })();
+</script>

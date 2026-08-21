@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMessageReceived;
+use App\Models\ContactMessage;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -37,7 +41,13 @@ class PageController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        // In production, send Mailable notification to admin
+        $contactMessage = ContactMessage::create($validated);
+
+        $adminEmails = User::where('role', 'admin')->pluck('email');
+        foreach ($adminEmails as $adminEmail) {
+            Mail::to($adminEmail)->send(new ContactMessageReceived($contactMessage));
+        }
+
         return back()->with('success', 'Thank you for reaching out to Sonakshi Fashion Hub! Our bridal styling concierge will respond within 24 hours.');
     }
 

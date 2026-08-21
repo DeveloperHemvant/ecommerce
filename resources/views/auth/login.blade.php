@@ -1,3 +1,4 @@
+<x-layouts.auth title="Sign In" subtitle="Welcome back to Sonakshi Fashion Hub">
     @if(session('info'))
         <div class="mb-4 p-3.5 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded-xl flex items-center gap-2">
             <span class="material-symbols-outlined text-base">info</span>
@@ -51,7 +52,7 @@
                 <label class="block font-label-caps text-xs text-on-surface-variant uppercase font-semibold" for="password">
                     Password
                 </label>
-                <a href="#" class="font-body-md text-xs text-heritage-burgundy hover:underline">
+                <a href="{{ route('password.request') }}" class="font-body-md text-xs text-heritage-burgundy hover:underline">
                     Forgot Password?
                 </a>
             </div>

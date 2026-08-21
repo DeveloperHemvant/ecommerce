@@ -41,7 +41,31 @@ class CollectionsController extends Controller
             });
         }
 
-        $products = $query->latest()->get();
+        // Price range filter
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', (float) $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', (float) $request->max_price);
+        }
+
+        // Size filter
+        if ($request->filled('size')) {
+            $query->whereJsonContains('sizes', $request->size);
+        }
+
+        // Color filter
+        if ($request->filled('color')) {
+            $query->whereJsonContains('colors', $request->color);
+        }
+
+        $products = $query->latest()->paginate(12)->withQueryString();
+
+        // Distinct filter options drawn from the active catalog
+        $availableSizes = Product::where('is_active', true)->pluck('sizes')
+            ->flatten(1)->filter()->unique()->sort()->values();
+        $availableColors = Product::where('is_active', true)->pluck('colors')
+            ->flatten(1)->filter()->unique()->sort()->values();
 
         // Trending YouTube Lookbook Video
         $trendingVideo = YouTubeVideo::where('is_trending', true)
@@ -49,6 +73,6 @@ class CollectionsController extends Controller
             ->with('products')
             ->first() ?? YouTubeVideo::where('is_active', true)->with('products')->first();
 
-        return view('collections', compact('categories', 'products', 'selectedCategory', 'trendingVideo'));
+        return view('collections', compact('categories', 'products', 'selectedCategory', 'trendingVideo', 'availableSizes', 'availableColors'));
     }
 }

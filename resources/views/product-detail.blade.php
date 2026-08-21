@@ -361,6 +361,63 @@
         </div>
     </section>
 
+    <!-- Complete the Look / You May Also Like -->
+    @if($relatedProducts->isNotEmpty())
+        <section class="mb-16">
+            <div class="mb-6">
+                <span class="font-label-caps text-xs text-muted-gold uppercase tracking-widest font-bold block mb-1">Complete the Look</span>
+                <h2 class="font-headline-lg text-2xl md:text-3xl text-heritage-burgundy font-serif">You May Also Like</h2>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+                @foreach($relatedProducts as $rp)
+                    <div class="group flex flex-col justify-between bg-surface-container-lowest rounded-2xl border border-border-subtle p-3 sm:p-4 shadow-xs hover:border-heritage-burgundy/40 hover:shadow-md transition-all">
+                        <div class="relative aspect-[3/4] rounded-xl overflow-hidden bg-surface mb-3.5">
+                            <a href="{{ route('product.detail', $rp->slug) }}" class="block w-full h-full">
+                                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                    data-alt="{{ $rp->name }}"
+                                    src="{{ $rp->main_image }}" />
+                            </a>
+                            @if($rp->discount_percentage)
+                                <span class="absolute top-2.5 left-2.5 bg-heritage-burgundy text-white font-label-caps text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-bold shadow-xs">
+                                    {{ $rp->discount_percentage }}% OFF
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="space-y-2 flex-1 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-label-caps uppercase text-on-surface-variant block tracking-wider">{{ $rp->category->name ?? 'Couture' }}</span>
+                                <h3 class="font-title-lg text-xs sm:text-sm font-semibold text-charcoal-text line-clamp-1 mt-0.5 group-hover:text-heritage-burgundy transition-colors">
+                                    <a href="{{ route('product.detail', $rp->slug) }}">{{ $rp->name }}</a>
+                                </h3>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="font-data-tabular font-bold text-sm text-heritage-burgundy">{{ $rp->formatted_price }}</span>
+                                    @if($rp->formatted_compare_price)
+                                        <span class="font-data-tabular text-[11px] text-on-surface-variant line-through">{{ $rp->formatted_compare_price }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-border-subtle/60 flex items-center justify-between gap-2">
+                                <a href="{{ route('product.detail', $rp->slug) }}" class="text-[11px] font-label-caps uppercase font-bold text-heritage-burgundy hover:underline">
+                                    View Piece &rarr;
+                                </a>
+                                <form action="{{ route('cart.add') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $rp->id }}" />
+                                    <button type="submit" class="w-8 h-8 rounded-lg bg-warm-ivory text-heritage-burgundy hover:bg-heritage-burgundy hover:text-white transition-colors flex items-center justify-center cursor-pointer" title="Add to Bag">
+                                        <span class="material-symbols-outlined text-base">shopping_bag</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     <!-- Custom Fit Tailoring Modal -->
     <div id="customFitModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
         <div class="bg-surface-container-lowest border border-border-subtle rounded-2xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative space-y-4">

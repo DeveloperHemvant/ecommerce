@@ -54,16 +54,9 @@ class ReviewController extends Controller
             'comment' => $validated['comment'],
             'photos' => $photoPaths,
             'is_verified_buyer' => $isVerified,
-            'is_approved' => true,
+            'is_approved' => false,
         ]);
 
-        // Recalculate Product average rating & count
-        $approvedReviews = $product->reviews()->where('is_approved', true)->get();
-        $product->update([
-            'rating' => $approvedReviews->avg('rating') ?: 5.0,
-            'reviews_count' => $approvedReviews->count(),
-        ]);
-
-        return back()->with('success', 'Thank you! Your review and outfit photos have been submitted.');
+        return back()->with('success', 'Thank you! Your review has been submitted and will appear once our team approves it.');
     }
 }

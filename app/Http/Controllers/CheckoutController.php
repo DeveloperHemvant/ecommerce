@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderConfirmation;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Services\CartSyncService;
+use App\Services\RazorpayService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
 {
+    public function __construct(protected RazorpayService $razorpay, protected CartSyncService $cartSync) {}
+
     /**
      * Step 1: Shipping & Contact Details (Requires Customer Login).
      */
@@ -137,9 +143,10 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Place order, create database records, decrement stock, and clear cart.
+     * Place order. Cash on Delivery is confirmed immediately; online payment
+     * methods create a Razorpay order and hand off to the secure payment widget.
      */
-    public function placeOrder(Request $request): RedirectResponse
+    public function placeOrder(Request $request): RedirectResponse|View
     {
         if (! Auth::check()) {
             return redirect()->route('login');
@@ -162,13 +169,104 @@ class CheckoutController extends Controller
         $discount = $this->calculateDiscount($coupon, $subtotal);
         $total = max(0, $subtotal - $discount);
 
-        $order = DB::transaction(function () use ($shipping, $paymentMethod, $subtotal, $discount, $total, $cart, $coupon) {
-            $orderNumber = Order::generateOrderNumber();
-            $transactionId = $paymentMethod === 'COD' ? null : 'TXN'.rand(10000000, 99999999);
-            $paymentStatus = $paymentMethod === 'COD' ? 'pending' : 'paid';
+        if ($paymentMethod === 'COD') {
+            $order = $this->createOrderRecord($shipping, $paymentMethod, $subtotal, $discount, $total, $cart, $coupon, null, 'pending');
 
+            session()->forget(['cart', 'coupon', 'checkout']);
+        $this->cartSync->clear(Auth::id());
+
+            Mail::to($order->customer_email)->send(new OrderConfirmation($order));
+
+            return redirect()->route('order.success', ['order' => $order->order_number]);
+        }
+
+        // Online payment: create a Razorpay order and hand off to the secure checkout widget.
+        $razorpayOrder = $this->razorpay->createOrder(
+            amountInPaise: (int) round($total * 100),
+            receipt: 'rcpt_'.Auth::id().'_'.now()->timestamp
+        );
+
+        session()->put('checkout.razorpay_order_id', $razorpayOrder['id']);
+
+        return view('checkout.razorpay-pay', [
+            'razorpayOrderId' => $razorpayOrder['id'],
+            'razorpayKey' => config('services.razorpay.key'),
+            'amountInPaise' => (int) round($total * 100),
+            'total' => $total,
+            'shipping' => $shipping,
+            'paymentMethod' => $paymentMethod,
+        ]);
+    }
+
+    /**
+     * Verify the Razorpay payment signature and finalize the order.
+     */
+    public function verifyPayment(Request $request): RedirectResponse
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $validated = $request->validate([
+            'razorpay_payment_id' => ['required', 'string'],
+            'razorpay_order_id' => ['required', 'string'],
+            'razorpay_signature' => ['required', 'string'],
+        ]);
+
+        $expectedOrderId = session()->get('checkout.razorpay_order_id');
+
+        if (! $expectedOrderId || $expectedOrderId !== $validated['razorpay_order_id']) {
+            return redirect()->route('checkout.payment')->with('error', 'Payment session expired. Please try again.');
+        }
+
+        if (! $this->razorpay->verifySignature($validated)) {
+            return redirect()->route('checkout.payment')->with('error', 'Payment verification failed. Please try again or choose a different payment method.');
+        }
+
+        $cart = session()->get('cart', []);
+        if (empty($cart)) {
+            return redirect()->route('cart')->with('error', 'Your cart is empty.');
+        }
+
+        $shipping = session()->get('checkout.shipping');
+        if (empty($shipping)) {
+            return redirect()->route('checkout.shipping');
+        }
+
+        $paymentMethod = session()->get('checkout.payment', 'UPI');
+        $coupon = session()->get('coupon');
+
+        $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
+        $discount = $this->calculateDiscount($coupon, $subtotal);
+        $total = max(0, $subtotal - $discount);
+
+        $order = $this->createOrderRecord($shipping, $paymentMethod, $subtotal, $discount, $total, $cart, $coupon, $validated['razorpay_payment_id'], 'paid');
+
+        session()->forget(['cart', 'coupon', 'checkout']);
+        $this->cartSync->clear(Auth::id());
+
+        Mail::to($order->customer_email)->send(new OrderConfirmation($order));
+
+        return redirect()->route('order.success', ['order' => $order->order_number]);
+    }
+
+    /**
+     * Persist the order and its items, decrement stock, and record coupon usage.
+     */
+    private function createOrderRecord(
+        array $shipping,
+        string $paymentMethod,
+        float $subtotal,
+        float $discount,
+        float $total,
+        array $cart,
+        ?array $coupon,
+        ?string $transactionId,
+        string $paymentStatus
+    ): Order {
+        return DB::transaction(function () use ($shipping, $paymentMethod, $subtotal, $discount, $total, $cart, $coupon, $transactionId, $paymentStatus) {
             $order = Order::create([
-                'order_number' => $orderNumber,
+                'order_number' => Order::generateOrderNumber(),
                 'user_id' => Auth::id(),
                 'customer_name' => $shipping['customer_name'],
                 'customer_email' => $shipping['customer_email'],
@@ -219,11 +317,6 @@ class CheckoutController extends Controller
 
             return $order;
         });
-
-        // Clear shopping cart and checkout session
-        session()->forget(['cart', 'coupon', 'checkout']);
-
-        return redirect()->route('order.success', ['order' => $order->order_number]);
     }
 
     /**

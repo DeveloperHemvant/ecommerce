@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderStatusUpdated;
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -67,6 +69,8 @@ class OrderController extends Controller
             'tracking_number' => $validated['tracking_number'] ?? $order->tracking_number,
             'tracking_url' => $validated['tracking_url'] ?? $order->tracking_url,
         ]);
+
+        Mail::to($order->customer_email)->send(new OrderStatusUpdated($order));
 
         return back()->with('success', "Order #{$order->order_number} status updated to '".ucfirst($validated['status'])."'.");
     }

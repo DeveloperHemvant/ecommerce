@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Coupon;
 use App\Models\Product;
+use App\Services\CartSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class CartController extends Controller
 {
+    public function __construct(protected CartSyncService $cartSync) {}
+
     /**
      * Display the shopping cart page.
      */
@@ -85,6 +89,10 @@ class CartController extends Controller
 
         session()->put('cart', $cart);
 
+        if (Auth::check()) {
+            $this->cartSync->upsert(Auth::id(), $cartKey, $cart[$cartKey]);
+        }
+
         if ($request->filled('buy_now')) {
             return redirect()->route('checkout.shipping');
         }
@@ -115,6 +123,14 @@ class CartController extends Controller
                 }
             }
             session()->put('cart', $cart);
+
+            if (Auth::check()) {
+                if (isset($cart[$key])) {
+                    $this->cartSync->upsert(Auth::id(), $key, $cart[$key]);
+                } else {
+                    $this->cartSync->remove(Auth::id(), $key);
+                }
+            }
         }
 
         return redirect()->route('cart');
@@ -134,6 +150,10 @@ class CartController extends Controller
             $name = $cart[$validated['cart_key']]['name'];
             unset($cart[$validated['cart_key']]);
             session()->put('cart', $cart);
+
+            if (Auth::check()) {
+                $this->cartSync->remove(Auth::id(), $validated['cart_key']);
+            }
 
             return redirect()->route('cart')->with('success', "Removed '{$name}' from your cart.");
         }
@@ -158,58 +178,30 @@ class CartController extends Controller
             $subtotal += $item['price'] * $item['quantity'];
         }
 
-        // 1. Search database for coupon
         $coupon = Coupon::where('code', $code)->first();
 
-        if ($coupon) {
-            $check = $coupon->isValidFor($subtotal);
-            if (! $check['valid']) {
-                return redirect()->route('cart')->with('error', $check['message']);
-            }
-
-            $discountAmount = $coupon->calculateDiscount($subtotal);
-
-            session()->put('coupon', [
-                'id' => $coupon->id,
-                'code' => $coupon->code,
-                'type' => $coupon->type,
-                'value' => (float) $coupon->value,
-                'discount_amount' => $discountAmount,
-                'percent' => $coupon->type === 'percent' ? (int) $coupon->value : null,
-                'description' => $coupon->description ?? "Coupon {$coupon->code}",
-            ]);
-
-            return redirect()->route('cart')->with('success', "Coupon '{$coupon->code}' applied! You saved ₹".number_format($discountAmount).'.');
+        if (! $coupon) {
+            return redirect()->route('cart')->with('error', "Invalid coupon code '{$code}'.");
         }
 
-        // 2. Fallback for built-in promo codes
-        if ($code === 'WELCOME10') {
-            $discount = round(($subtotal * 10) / 100);
-            session()->put('coupon', [
-                'code' => 'WELCOME10',
-                'type' => 'percent',
-                'value' => 10,
-                'percent' => 10,
-                'discount_amount' => $discount,
-                'description' => '10% Welcome Discount',
-            ]);
-
-            return redirect()->route('cart')->with('success', "Coupon 'WELCOME10' applied! You got 10% OFF.");
-        } elseif ($code === 'HERITAGE20') {
-            $discount = round(($subtotal * 20) / 100);
-            session()->put('coupon', [
-                'code' => 'HERITAGE20',
-                'type' => 'percent',
-                'value' => 20,
-                'percent' => 20,
-                'discount_amount' => $discount,
-                'description' => '20% Heritage Festive Discount',
-            ]);
-
-            return redirect()->route('cart')->with('success', "Coupon 'HERITAGE20' applied! You got 20% OFF.");
+        $check = $coupon->isValidFor($subtotal);
+        if (! $check['valid']) {
+            return redirect()->route('cart')->with('error', $check['message']);
         }
 
-        return redirect()->route('cart')->with('error', "Invalid coupon code '{$code}'.");
+        $discountAmount = $coupon->calculateDiscount($subtotal);
+
+        session()->put('coupon', [
+            'id' => $coupon->id,
+            'code' => $coupon->code,
+            'type' => $coupon->type,
+            'value' => (float) $coupon->value,
+            'discount_amount' => $discountAmount,
+            'percent' => $coupon->type === 'percent' ? (int) $coupon->value : null,
+            'description' => $coupon->description ?? "Coupon {$coupon->code}",
+        ]);
+
+        return redirect()->route('cart')->with('success', "Coupon '{$coupon->code}' applied! You saved ₹".number_format($discountAmount).'.');
     }
 
     /**

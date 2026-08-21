@@ -36,6 +36,115 @@ test('collections page renders with categories and products', function () {
     $response->assertSee('Royal Velvet Lehenga');
 });
 
+test('collections page filters products by price range, size, and color', function () {
+    $category = Category::create(['name' => 'Lehenga', 'slug' => 'lehenga', 'is_active' => true]);
+
+    $cheapProduct = Product::create([
+        'category_id' => $category->id,
+        'name' => 'Budget Cotton Kurti',
+        'slug' => 'budget-cotton-kurti',
+        'sku' => 'KUR-01',
+        'price' => 1500.00,
+        'stock' => 10,
+        'main_image' => 'https://example.com/image.jpg',
+        'sizes' => ['S', 'M'],
+        'colors' => ['Red'],
+        'is_active' => true,
+    ]);
+
+    $expensiveProduct = Product::create([
+        'category_id' => $category->id,
+        'name' => 'Royal Velvet Lehenga',
+        'slug' => 'royal-velvet-lehenga',
+        'sku' => 'LEH-01',
+        'price' => 25000.00,
+        'stock' => 10,
+        'main_image' => 'https://example.com/image.jpg',
+        'sizes' => ['L', 'XL'],
+        'colors' => ['Maroon'],
+        'is_active' => true,
+    ]);
+
+    $priceFiltered = $this->get('/collections?max_price=5000');
+    $priceFiltered->assertSee('Budget Cotton Kurti');
+    $priceFiltered->assertDontSee('Royal Velvet Lehenga');
+
+    $sizeFiltered = $this->get('/collections?size=XL');
+    $sizeFiltered->assertSee('Royal Velvet Lehenga');
+    $sizeFiltered->assertDontSee('Budget Cotton Kurti');
+
+    $colorFiltered = $this->get('/collections?color=Red');
+    $colorFiltered->assertSee('Budget Cotton Kurti');
+    $colorFiltered->assertDontSee('Royal Velvet Lehenga');
+});
+
+test('header search suggest endpoint returns matching active products', function () {
+    $category = Category::create(['name' => 'Lehenga', 'slug' => 'lehenga', 'is_active' => true]);
+
+    Product::create([
+        'category_id' => $category->id,
+        'name' => 'Royal Velvet Lehenga',
+        'slug' => 'royal-velvet-lehenga',
+        'sku' => 'LEH-01',
+        'price' => 25000.00,
+        'stock' => 10,
+        'main_image' => 'https://example.com/image.jpg',
+        'is_active' => true,
+    ]);
+
+    Product::create([
+        'category_id' => $category->id,
+        'name' => 'Inactive Silk Saree',
+        'slug' => 'inactive-silk-saree',
+        'sku' => 'SAR-99',
+        'price' => 5000.00,
+        'stock' => 10,
+        'main_image' => 'https://example.com/image.jpg',
+        'is_active' => false,
+    ]);
+
+    $response = $this->getJson('/search/suggest?q=Velvet');
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'results');
+    $response->assertJsonFragment(['name' => 'Royal Velvet Lehenga']);
+
+    $tooShort = $this->getJson('/search/suggest?q=V');
+    $tooShort->assertJsonCount(0, 'results');
+});
+
+test('product detail page shows related products from the same category', function () {
+    $category = Category::create(['name' => 'Lehenga', 'slug' => 'lehenga', 'is_active' => true]);
+
+    $main = Product::create([
+        'category_id' => $category->id,
+        'name' => 'Royal Velvet Lehenga',
+        'slug' => 'royal-velvet-lehenga',
+        'sku' => 'LEH-01',
+        'price' => 25000.00,
+        'stock' => 10,
+        'main_image' => 'https://example.com/image.jpg',
+        'is_active' => true,
+    ]);
+
+    Product::create([
+        'category_id' => $category->id,
+        'name' => 'Emerald Silk Lehenga',
+        'slug' => 'emerald-silk-lehenga',
+        'sku' => 'LEH-02',
+        'price' => 22000.00,
+        'stock' => 5,
+        'main_image' => 'https://example.com/image2.jpg',
+        'is_active' => true,
+    ]);
+
+    $response = $this->get('/products/'.$main->slug);
+
+    $response->assertOk();
+    $response->assertSee('You May Also Like');
+    $response->assertSee('Emerald Silk Lehenga');
+});
+
 test('product detail page renders with dynamic specs and discount calculation', function () {
     $category = Category::create([
         'name' => 'Lacha',

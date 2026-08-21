@@ -112,46 +112,8 @@
                 </span>
             </div>
 
-            <div class="flex-1 relative min-h-[260px] w-full bg-surface-container-low/40 rounded-xl flex items-center justify-center overflow-hidden border border-border-subtle p-4">
-                <div class="absolute inset-0 p-4 flex items-end gap-2 px-8">
-                    <!-- Y-axis scale labels -->
-                    <div class="absolute left-3 top-4 bottom-8 flex flex-col justify-between text-[10px] text-on-surface-variant font-data-tabular">
-                        <span>₹{{ number_format($maxDaily) }}</span>
-                        <span>₹{{ number_format($maxDaily * 0.66) }}</span>
-                        <span>₹{{ number_format($maxDaily * 0.33) }}</span>
-                        <span>0</span>
-                    </div>
-
-                    <!-- SVG Dynamic Sales Wave Graph -->
-                    <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                        <line class="text-border-subtle/60" stroke="currentColor" stroke-width="0.3" x1="0" x2="100" y1="15" y2="15"></line>
-                        <line class="text-border-subtle/60" stroke="currentColor" stroke-width="0.3" x1="0" x2="100" y1="40" y2="40"></line>
-                        <line class="text-border-subtle/60" stroke="currentColor" stroke-width="0.3" x1="0" x2="100" y1="65" y2="65"></line>
-                        <line class="text-border-subtle/60" stroke="currentColor" stroke-width="0.3" x1="0" x2="100" y1="90" y2="90"></line>
-                        
-                        <!-- Smooth Line Path from Database -->
-                        <path d="{{ $svgLinePath }}"
-                            fill="none" stroke="#600018" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
-                        
-                        <!-- Shaded Area Gradient -->
-                        <path d="{{ $svgAreaPath }}"
-                            fill="url(#revGrad)" opacity="0.25"></path>
-
-                        <defs>
-                            <linearGradient id="revGrad" x1="0" x2="0" y1="0" y2="1">
-                                <stop offset="0%" stop-color="#600018"></stop>
-                                <stop offset="100%" stop-color="#600018" stop-opacity="0"></stop>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-
-                    <!-- X-axis Labels -->
-                    <div class="absolute left-12 right-6 bottom-2 flex justify-between text-[11px] text-on-surface-variant font-data-tabular">
-                        @foreach($dayLabels as $label)
-                            <span>{{ $label }}</span>
-                        @endforeach
-                    </div>
-                </div>
+            <div class="flex-1 relative min-h-[260px] w-full bg-surface-container-low/40 rounded-xl overflow-hidden border border-border-subtle p-4">
+                <canvas id="revenueChart" height="220"></canvas>
             </div>
         </div>
 
@@ -206,14 +168,12 @@
                     <span class="text-xs font-label-caps text-on-surface-variant font-bold">{{ $totalCategoryProducts }} Total</span>
                 </div>
 
-                <!-- Dynamic Donut Graphic -->
-                <div class="flex items-center justify-center relative my-3">
-                    <div class="w-28 h-28 rounded-full relative shadow-xs"
-                        style="background: {{ $donutGradient }};">
-                        <div class="absolute inset-0 m-auto w-16 h-16 bg-surface-container-lowest rounded-full flex flex-col items-center justify-center shadow-xs">
-                            <span class="font-headline-md text-sm font-bold text-charcoal-text">{{ $totalCategoryProducts }}</span>
-                            <span class="text-[9px] text-on-surface-variant font-label-caps uppercase">Items</span>
-                        </div>
+                <!-- Dynamic Donut Chart -->
+                <div class="flex items-center justify-center relative my-3 w-28 h-28 mx-auto">
+                    <canvas id="categoryDonutChart" width="112" height="112"></canvas>
+                    <div class="absolute inset-0 m-auto w-16 h-16 bg-surface-container-lowest rounded-full flex flex-col items-center justify-center shadow-xs pointer-events-none">
+                        <span class="font-headline-md text-sm font-bold text-charcoal-text">{{ $totalCategoryProducts }}</span>
+                        <span class="text-[9px] text-on-surface-variant font-label-caps uppercase">Items</span>
                     </div>
                 </div>
 
@@ -299,4 +259,65 @@
             </table>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            var revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: @json($dayLabels),
+                        datasets: [{
+                            label: 'Revenue',
+                            data: @json($dailyData),
+                            borderColor: '#600018',
+                            backgroundColor: 'rgba(96, 0, 24, 0.12)',
+                            borderWidth: 2.5,
+                            tension: 0.35,
+                            fill: true,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#600018',
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) { return '₹' + value.toLocaleString('en-IN'); },
+                                },
+                                grid: { color: 'rgba(138, 113, 114, 0.15)' },
+                            },
+                            x: { grid: { display: false } },
+                        },
+                    },
+                });
+            }
+
+            var donutCtx = document.getElementById('categoryDonutChart');
+            if (donutCtx) {
+                new Chart(donutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: @json(collect($categoryBreakdown)->pluck('name')),
+                        datasets: [{
+                            data: @json(collect($categoryBreakdown)->pluck('count')),
+                            backgroundColor: @json(collect($categoryBreakdown)->pluck('color')),
+                            borderWidth: 0,
+                        }],
+                    },
+                    options: {
+                        responsive: false,
+                        cutout: '70%',
+                        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+                    },
+                });
+            }
+        })();
+    </script>
 </x-layouts.admin>

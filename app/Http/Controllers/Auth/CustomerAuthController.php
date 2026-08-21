@@ -4,14 +4,18 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\CartSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 
 class CustomerAuthController extends Controller
 {
+    public function __construct(protected CartSyncService $cartSync) {}
+
     /**
      * Display the customer login form.
      */
@@ -41,6 +45,9 @@ class CustomerAuthController extends Controller
 
         if (Auth::attempt([$loginField => $credentials['email'], 'password' => $credentials['password']], $remember)) {
             $request->session()->regenerate();
+
+            $merged = $this->cartSync->mergeOnLogin(Auth::id(), session()->get('cart', []));
+            session()->put('cart', $merged);
 
             return redirect()->intended(route('collections'))->with('success', 'Logged in successfully.');
         }
@@ -86,7 +93,66 @@ class CustomerAuthController extends Controller
 
         $request->session()->regenerate();
 
+        $merged = $this->cartSync->mergeOnLogin($user->id, session()->get('cart', []));
+        session()->put('cart', $merged);
+
         return redirect()->intended(route('collections'))->with('success', 'Account created successfully! Welcome to Sonakshi Fashion Hub.');
+    }
+
+    /**
+     * Display the forgot password form.
+     */
+    public function showForgotPassword(): View
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Send a password reset link to the given email address.
+     */
+    public function sendResetLink(Request $request): RedirectResponse
+    {
+        $request->validate(['email' => ['required', 'email']]);
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('success', __($status))
+            : back()->withErrors(['email' => __($status)]);
+    }
+
+    /**
+     * Display the reset password form.
+     */
+    public function showResetPassword(Request $request, string $token): View
+    {
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => $request->query('email'),
+        ]);
+    }
+
+    /**
+     * Reset the customer's password.
+     */
+    public function resetPassword(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill(['password' => Hash::make($password)])->save();
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ? redirect()->route('login')->with('success', 'Your password has been reset. Please sign in.')
+            : back()->withErrors(['email' => __($status)]);
     }
 
     /**

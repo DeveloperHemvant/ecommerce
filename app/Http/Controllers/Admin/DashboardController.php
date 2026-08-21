@@ -52,53 +52,29 @@ class DashboardController extends Controller
                 ->where('payment_status', 'paid')
                 ->sum('total_amount');
 
-            // If no orders on past days in test db, provide a baseline distribution
-            if ($daySum == 0 && $totalRevenue > 0 && $i > 0) {
-                $baseFactors = [6 => 0.10, 5 => 0.15, 4 => 0.12, 3 => 0.18, 2 => 0.20, 1 => 0.25];
-                $daySum = round($totalRevenue * ($baseFactors[$i] ?? 0.1));
-            }
-
             $dailyData[] = $daySum;
             $dayLabels[] = $dayName;
         }
 
         $maxDaily = max(max($dailyData), 10000);
-        $svgPoints = [];
-        $countDays = count($dailyData);
-        foreach ($dailyData as $idx => $val) {
-            $x = round(($idx / ($countDays - 1)) * 100);
-            $y = round(90 - (($val / $maxDaily) * 75)); // SVG coordinate: 15 (top) to 90 (bottom)
-            $svgPoints[] = "{$x},{$y}";
-        }
-        $svgLinePath = 'M '.implode(' L ', $svgPoints);
-        $svgAreaPath = "{$svgLinePath} L 100,100 L 0,100 Z";
 
-        // 4. Category Breakdown & Donut Chart
+        // 4. Category Breakdown (for the donut chart)
         $categories = Category::withCount('products')->get();
         $totalCategoryProducts = max(1, $categories->sum('products_count'));
         $categoryBreakdown = [];
-        $gradientSegments = [];
-        $currentAngle = 0;
 
         $palette = ['#600018', '#C5B358', '#8B263E', '#D4AF37', '#4A0E17', '#E5D38A'];
 
         foreach ($categories as $index => $cat) {
             $percentage = round(($cat->products_count / $totalCategoryProducts) * 100);
-            $color = $palette[$index % count($palette)];
-            $nextAngle = $currentAngle + $percentage;
 
             $categoryBreakdown[] = [
                 'name' => $cat->name,
                 'count' => $cat->products_count,
                 'percentage' => $percentage,
-                'color' => $color,
+                'color' => $palette[$index % count($palette)],
             ];
-
-            $gradientSegments[] = "{$color} {$currentAngle}% {$nextAngle}%";
-            $currentAngle = $nextAngle;
         }
-
-        $donutGradient = ! empty($gradientSegments) ? 'conic-gradient('.implode(', ', $gradientSegments).')' : 'conic-gradient(#600018 0% 100%)';
 
         // 5. Low Stock Alert Products
         $lowStockProducts = Product::whereColumn('stock', '<=', 'low_stock_threshold')
@@ -122,10 +98,7 @@ class DashboardController extends Controller
             'dayLabels',
             'dailyData',
             'maxDaily',
-            'svgLinePath',
-            'svgAreaPath',
             'categoryBreakdown',
-            'donutGradient',
             'totalCategoryProducts',
             'lowStockProducts',
             'recentOrders'
