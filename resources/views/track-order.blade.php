@@ -1,5 +1,5 @@
 <x-layouts.app title="Live Order Tracking - Sonakshi Fashion Hub">
-    <div class="max-w-4xl mx-auto py-8 md:py-14 space-y-10">
+    <div class="max-w-5xl mx-auto py-8 md:py-14 space-y-10">
         <!-- Banner Header -->
         <div class="text-center space-y-2">
             <span class="font-label-caps text-xs uppercase tracking-widest text-muted-gold font-bold">Atelier Courier Dispatch</span>

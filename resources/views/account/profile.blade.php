@@ -1,5 +1,5 @@
 <x-layouts.app title="Profile Settings - Sonakshi Fashion Hub">
-    <div class="max-w-4xl mx-auto py-6 md:py-10 space-y-8">
+    <div class="max-w-5xl mx-auto py-6 md:py-10 space-y-8">
         <!-- Account Header Banner -->
         <div class="bg-surface-container-lowest rounded-2xl border border-border-subtle p-6 md:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">

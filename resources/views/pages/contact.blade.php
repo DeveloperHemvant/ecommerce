@@ -1,5 +1,5 @@
 <x-layouts.app title="Contact Us & Bridal Concierge - Sonakshi Fashion Hub">
-    <div class="max-w-5xl mx-auto space-y-12">
+    <div class="max-w-6xl mx-auto space-y-12">
         <!-- Header -->
         <div class="text-center space-y-3 pt-4">
             <span class="font-label-caps text-xs text-muted-gold uppercase tracking-widest font-bold block">Personal Atelier Concierge</span>

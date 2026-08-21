@@ -1,5 +1,5 @@
 <x-layouts.app title="Order #{{ $order->order_number }} - Sonakshi Fashion Hub">
-    <div class="max-w-5xl mx-auto py-6 md:py-10 space-y-8 print:p-0 print:m-0">
+    <div class="max-w-6xl mx-auto py-6 md:py-10 space-y-8 print:p-0 print:m-0">
         <!-- Top Action Bar -->
         <div class="flex items-center justify-between gap-4 print:hidden">
             <a href="{{ route('account.orders') }}" class="inline-flex items-center gap-1 text-xs font-label-caps uppercase text-on-surface-variant hover:text-heritage-burgundy transition-colors font-bold">

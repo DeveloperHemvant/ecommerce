@@ -8,6 +8,10 @@
     } else {
         $wishlistCount = count(session('wishlist', []));
     }
+
+    $navCategories = \App\Models\Category::where('is_active', true)
+        ->orderBy('display_order', 'asc')
+        ->get(['name', 'slug']);
 @endphp
 
 <header
@@ -17,11 +21,36 @@
             Sonakshi
         </a>
         <nav class="hidden md:flex items-center gap-6 ml-4">
-            <a href="{{ route('collections') }}" class="font-label-caps text-xs text-on-surface-variant hover:text-heritage-burgundy transition-colors tracking-widest uppercase {{ request()->is('collections*') ? 'text-heritage-burgundy font-bold' : '' }}">
-                Collections
+            <div class="relative" id="header-collections-widget">
+                <button type="button" id="header-collections-toggle" aria-haspopup="true" aria-expanded="false"
+                    class="flex items-center gap-1 font-label-caps text-xs text-on-surface-variant hover:text-heritage-burgundy transition-colors tracking-widest uppercase cursor-pointer {{ request()->is('collections*') ? 'text-heritage-burgundy font-bold' : '' }}">
+                    <span>Collections</span>
+                    <span id="header-collections-caret" class="material-symbols-outlined text-sm transition-transform">expand_more</span>
+                </button>
+
+                <div id="header-collections-panel" class="hidden absolute left-0 top-full pt-3 z-50">
+                    <div class="w-60 bg-surface-container-lowest border border-border-subtle rounded-2xl shadow-lg p-2">
+                        <a href="{{ route('collections') }}" class="block px-4 py-2.5 rounded-xl text-xs font-bold text-charcoal-text hover:bg-warm-ivory/70 hover:text-heritage-burgundy transition-colors">
+                            All Collections
+                        </a>
+                        <div class="my-1 border-t border-border-subtle"></div>
+                        @foreach($navCategories as $navCategory)
+                            <a href="{{ route('collections', ['category' => $navCategory->slug]) }}" class="block px-4 py-2.5 rounded-xl text-xs text-on-surface-variant hover:bg-warm-ivory/70 hover:text-heritage-burgundy transition-colors">
+                                {{ $navCategory->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ route('about') }}" class="font-label-caps text-xs text-on-surface-variant hover:text-heritage-burgundy transition-colors tracking-widest uppercase {{ request()->is('about-us*') ? 'text-heritage-burgundy font-bold' : '' }}">
+                About Us
             </a>
             <a href="{{ route('track.order') }}" class="font-label-caps text-xs text-on-surface-variant hover:text-heritage-burgundy transition-colors tracking-widest uppercase {{ request()->is('track-order*') ? 'text-heritage-burgundy font-bold' : '' }}">
                 Track Order
+            </a>
+            <a href="{{ route('contact') }}" class="font-label-caps text-xs text-on-surface-variant hover:text-heritage-burgundy transition-colors tracking-widest uppercase {{ request()->is('contact-us*') ? 'text-heritage-burgundy font-bold' : '' }}">
+                Contact
             </a>
             @if(Auth::check() && Auth::user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}" class="font-label-caps text-xs text-muted-gold hover:text-heritage-burgundy transition-colors tracking-widest uppercase">
@@ -112,12 +141,47 @@
         var results = document.getElementById('header-search-results');
         var debounceTimer = null;
 
+        var collectionsToggle = document.getElementById('header-collections-toggle');
+        var collectionsPanel = document.getElementById('header-collections-panel');
+        var collectionsCaret = document.getElementById('header-collections-caret');
+
+        if (collectionsToggle && collectionsPanel) {
+            collectionsToggle.addEventListener('click', function (event) {
+                event.stopPropagation();
+                var isOpen = !collectionsPanel.classList.contains('hidden');
+                collectionsPanel.classList.toggle('hidden');
+                collectionsToggle.setAttribute('aria-expanded', String(!isOpen));
+                if (collectionsCaret) {
+                    collectionsCaret.style.transform = isOpen ? '' : 'rotate(180deg)';
+                }
+                if (panel) panel.classList.add('hidden');
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!collectionsPanel.contains(event.target) && !collectionsToggle.contains(event.target)) {
+                    collectionsPanel.classList.add('hidden');
+                    collectionsToggle.setAttribute('aria-expanded', 'false');
+                    if (collectionsCaret) collectionsCaret.style.transform = '';
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    collectionsPanel.classList.add('hidden');
+                    collectionsToggle.setAttribute('aria-expanded', 'false');
+                    if (collectionsCaret) collectionsCaret.style.transform = '';
+                }
+            });
+        }
+
         if (!toggle || !panel || !input || !results) return;
 
-        toggle.addEventListener('click', function () {
+        toggle.addEventListener('click', function (event) {
+            event.stopPropagation();
             panel.classList.toggle('hidden');
             if (!panel.classList.contains('hidden')) {
                 input.focus();
+                if (collectionsPanel) collectionsPanel.classList.add('hidden');
             }
         });
 

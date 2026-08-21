@@ -1,5 +1,5 @@
 <x-layouts.app title="Order Confirmed - Sonakshi Fashion Hub">
-    <div class="max-w-3xl mx-auto py-8 md:py-12 space-y-8">
+    <div class="max-w-4xl mx-auto py-8 md:py-12 space-y-8">
         <!-- Success Header Banner -->
         <div class="text-center bg-surface-container-lowest rounded-2xl border border-border-subtle p-8 md:p-12 shadow-xs space-y-4">
             <div class="w-20 h-20 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border-2 border-emerald-200">

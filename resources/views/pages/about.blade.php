@@ -1,5 +1,5 @@
 <x-layouts.app title="About Us - Sonakshi Fashion Hub">
-    <div class="max-w-4xl mx-auto space-y-12">
+    <div class="max-w-6xl mx-auto space-y-12">
         <!-- Hero Header -->
         <div class="text-center space-y-3 pt-4">
             <span class="font-label-caps text-xs text-muted-gold uppercase tracking-widest font-bold block">Our Royal Heritage</span>

@@ -4,6 +4,9 @@
 
 @php
     $current = $active ?? (request()->is('collections*') ? 'shop' : (request()->is('cart*') ? 'cart' : (request()->is('login*') || request()->is('register*') ? 'account' : (request()->is('/') ? 'home' : 'shop'))));
+
+    $bottomCart = session()->get('cart', []);
+    $bottomCartCount = array_sum(array_column($bottomCart, 'quantity'));
 @endphp
 
 <nav
@@ -30,11 +33,13 @@
         href="{{ url('/cart') }}">
         <span class="material-symbols-outlined text-xl mb-1" @if($current === 'cart') data-weight="fill" style="font-variation-settings: 'FILL' 1;" @endif>shopping_bag</span>
         <span class="font-label-caps text-[10px]">Cart</span>
-        <span class="absolute top-1 right-2 bg-heritage-burgundy text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">2</span>
+        @if($bottomCartCount > 0)
+            <span class="absolute top-1 right-2 bg-heritage-burgundy text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">{{ $bottomCartCount }}</span>
+        @endif
     </a>
     
     <a class="flex flex-col items-center justify-center {{ $current === 'account' ? 'text-heritage-burgundy bg-surface-container-highest/50 rounded-xl px-2 py-1' : 'text-on-surface-variant hover:text-heritage-burgundy' }} transition-colors w-14"
-        href="{{ url('/login') }}">
+        href="{{ Auth::check() ? route('account.profile') : route('login') }}">
         <span class="material-symbols-outlined text-xl mb-1" @if($current === 'account') data-weight="fill" style="font-variation-settings: 'FILL' 1;" @endif>person</span>
         <span class="font-label-caps text-[10px]">Account</span>
     </a>
