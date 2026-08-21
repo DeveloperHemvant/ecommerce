@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>{{ $title ?? 'Sonakshi Fashion Hub - Royal Ethnic Couture' }}</title>
 
     <!-- Progressive Web App (PWA) Meta Tags -->

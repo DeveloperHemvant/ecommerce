@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\OrderStatusUpdated;
 use App\Models\Order;
+use App\Notifications\OrderStatusChangedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -71,6 +72,7 @@ class OrderController extends Controller
         ]);
 
         Mail::to($order->customer_email)->send(new OrderStatusUpdated($order));
+        $order->user?->notify(new OrderStatusChangedNotification($order));
 
         return back()->with('success', "Order #{$order->order_number} status updated to '".ucfirst($validated['status'])."'.");
     }

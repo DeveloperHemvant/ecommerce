@@ -7,27 +7,42 @@ use App\Models\Wishlist;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class WishlistController extends Controller
 {
     /**
-     * Display customer's wishlist items.
+     * Display customer's wishlist items, paginated so a long-time customer's
+     * saved list stays fast to render instead of loading everything at once.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $products = collect();
+        $perPage = 12;
 
         if (Auth::check()) {
-            $wishlists = Auth::user()->wishlists()->with('product.category')->latest()->get();
-            $products = $wishlists->pluck('product')->filter();
+            // orderByDesc('id') rather than latest(): created_at only has
+            // second precision, so wishlist items added in quick succession
+            // can tie and sort unpredictably — id is always monotonic.
+            $productIds = Auth::user()->wishlists()->orderByDesc('id')->pluck('product_id');
         } else {
-            $sessionWishlist = session('wishlist', []);
-            if (! empty($sessionWishlist)) {
-                $products = Product::whereIn('id', $sessionWishlist)->with('category')->get();
-            }
+            $productIds = collect(session('wishlist', []))->reverse()->values();
         }
+
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $pageIds = $productIds->forPage($page, $perPage);
+
+        $productsById = Product::whereIn('id', $pageIds)->with('category')->get()->keyBy('id');
+        $pageProducts = $pageIds->map(fn ($id) => $productsById->get($id))->filter()->values();
+
+        $products = new LengthAwarePaginator(
+            $pageProducts,
+            $productIds->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return view('wishlist', compact('products'));
     }

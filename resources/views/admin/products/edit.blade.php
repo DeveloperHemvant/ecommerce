@@ -284,7 +284,7 @@
                         <label class="block font-label-caps text-xs text-on-surface-variant uppercase mb-2 font-semibold">
                             Select Tags / Curations
                         </label>
-                        <div class="flex flex-wrap gap-4">
+                        <div class="flex flex-wrap gap-4 max-h-48 overflow-y-auto pr-1">
                             @foreach($tags as $t)
                                 <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-warm-ivory/60 border border-border-subtle rounded-xl cursor-pointer hover:border-heritage-burgundy transition-colors text-xs font-body-md">
                                     <input type="checkbox" name="tag_ids[]" value="{{ $t->id }}"

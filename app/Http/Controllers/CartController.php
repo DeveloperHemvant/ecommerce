@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Services\CartSyncService;
+use App\Services\OrderFulfillmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,7 @@ use Illuminate\View\View;
 
 class CartController extends Controller
 {
-    public function __construct(protected CartSyncService $cartSync) {}
+    public function __construct(protected CartSyncService $cartSync, protected OrderFulfillmentService $fulfillment) {}
 
     /**
      * Display the shopping cart page.
@@ -27,12 +28,17 @@ class CartController extends Controller
             $subtotal += $item['price'] * $item['quantity'];
         }
 
+        // Revalidate live rather than trusting the session snapshot — the cart
+        // (and therefore the subtotal a min-order coupon depends on) may have
+        // changed since the coupon was applied.
         $discount = 0;
         if ($coupon) {
-            if (isset($coupon['discount_amount'])) {
-                $discount = (float) $coupon['discount_amount'];
-            } elseif (isset($coupon['percent'])) {
-                $discount = round(($subtotal * $coupon['percent']) / 100);
+            $resolved = $this->fulfillment->resolveDiscount($coupon['id'] ?? null, $subtotal);
+            if (! $resolved['coupon_id']) {
+                session()->forget('coupon');
+                $coupon = null;
+            } else {
+                $discount = $resolved['discount'];
             }
         }
 

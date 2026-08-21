@@ -150,23 +150,7 @@
                     <p class="font-body-md text-xs text-on-surface-variant mt-1">Select products shown in this video so customers can purchase them directly from the lookbook preview.</p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 max-h-[360px] overflow-y-auto pr-1">
-                    @foreach($products as $product)
-                        <label class="p-3 bg-warm-ivory/50 border border-border-subtle rounded-xl flex items-center gap-3 cursor-pointer hover:border-heritage-burgundy hover:bg-cream-silk transition-colors">
-                            <input type="checkbox" name="product_ids[]" value="{{ $product->id }}"
-                                {{ is_array(old('product_ids')) && in_array($product->id, old('product_ids')) ? 'checked' : '' }}
-                                class="rounded border-border-subtle text-heritage-burgundy focus:ring-heritage-burgundy shrink-0" />
-                            <div class="w-10 h-12 rounded overflow-hidden bg-surface shrink-0 border border-border-subtle">
-                                <img src="{{ $product->main_image }}" alt="{{ $product->name }}" class="w-full h-full object-cover" />
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="font-title-lg text-xs font-semibold text-charcoal-text truncate">{{ $product->name }}</p>
-                                <p class="font-data-tabular text-[11px] text-heritage-burgundy font-bold">{{ $product->formatted_price }}</p>
-                                <span class="font-data-tabular text-[10px] text-on-surface-variant">{{ $product->sku }}</span>
-                            </div>
-                        </label>
-                    @endforeach
-                </div>
+                <x-admin.product-picker :selected="$selected" />
             </div>
 
             <!-- Submit Buttons -->

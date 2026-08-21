@@ -13,13 +13,16 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\YouTubeVideoController as AdminYouTubeVideoController;
 use App\Http\Controllers\Auth\CustomerAuthController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductDetailController;
+use App\Http\Controllers\RazorpayWebhookController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\WishlistController;
@@ -79,7 +82,7 @@ Route::get('/return-policy', [PageController::class, 'returns'])->name('return.p
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy.policy');
 
 // Live Public Order Tracking
-Route::get('/track-order', [OrderTrackingController::class, 'index'])->name('track.order');
+Route::get('/track-order', [OrderTrackingController::class, 'index'])->middleware('throttle:15,1')->name('track.order');
 
 // Customer Reviews Submission
 Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
@@ -121,6 +124,16 @@ Route::post('/forgot-password', [CustomerAuthController::class, 'sendResetLink']
 Route::get('/reset-password/{token}', [CustomerAuthController::class, 'showResetPassword'])->name('password.reset');
 Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword'])->middleware('throttle:5,1')->name('password.update');
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Customer Account Portal (Requires Auth)
@@ -131,6 +144,11 @@ Route::middleware(['auth'])->prefix('account')->name('account.')->group(function
     Route::get('/orders/{orderNumber}', [AccountController::class, 'orderDetail'])->name('orders.show');
     Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
     Route::post('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications/recent', [NotificationController::class, 'recent'])->name('notifications.recent');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 });
 
 /*
@@ -146,6 +164,15 @@ Route::get('/checkout/review', [CheckoutController::class, 'review'])->name('che
 Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.place_order');
 Route::post('/checkout/payment/verify', [CheckoutController::class, 'verifyPayment'])->name('checkout.payment.verify');
 Route::get('/order-success', [CheckoutController::class, 'orderSuccess'])->name('order.success');
+
+/*
+|--------------------------------------------------------------------------
+| Payment Provider Webhooks (server-to-server, no session/CSRF)
+|--------------------------------------------------------------------------
+*/
+Route::post('/webhooks/razorpay', [RazorpayWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1')
+    ->name('webhooks.razorpay');
 
 /*
 |--------------------------------------------------------------------------
@@ -167,6 +194,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('categories', AdminCategoryController::class)->except(['show']);
 
         // Product & Stock Management
+        Route::get('/products/search', [AdminProductController::class, 'search'])->name('products.search');
         Route::resource('products', AdminProductController::class)->except(['show']);
 
         // YouTube Lookbook CMS
