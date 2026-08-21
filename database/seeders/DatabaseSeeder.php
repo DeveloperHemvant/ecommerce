@@ -138,6 +138,7 @@ class DatabaseSeeder extends Seeder
                 'sku' => 'SS-BAN-01',
                 'price' => 12499.00,
                 'compare_price' => 15000.00,
+                'cost_price' => 7000.00,
                 'stock' => 18,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuBHo2AI-nuhCDtY7OqAzC7IuIQinAr6fQtpX8m0hWogHweqDrvQyU1BS5Y83-MMJOBkKtlKnvaqO5iBdPxGPekyDKAKl4k711cKT2TqACShhWws87SUjzduLOk9ZJAPsri35wMSmkCCZX3rl8ZmGf24drcMIPch3PLxunrxx0DwjrWT8JBPX4KuyCgkXUXxkMckXHk8Q7BDImoU-UCR05O4GD6O45E4mLyPPypNlRM9jK3Dc6vshirC',
@@ -168,6 +169,7 @@ class DatabaseSeeder extends Seeder
                 'sku' => 'SS-ORG-02',
                 'price' => 18500.00,
                 'compare_price' => 22000.00,
+                'cost_price' => 10500.00,
                 'stock' => 8,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCwdN1ftjB8zIXfzcYEPCxytlDSZOlKotGjnWachLP1_hxmlncFs-v7kZj4yn2PgiiFJE-QYWtp99kbhVrV-oW7fn6D56biJ_ER1IUHOOjZbiJ4aZbIOQMcX6xFzpr-h5RWe5MlEpoP3Hw-kCbNn1f3VoOrpTUFuZroan6DsQ6djlBCEw-k7RP2LgF3b82WHZXUwGnKCGypbXntqg3dYtblF8VIqiuy3fzUBgWJy_G5_R-7PEUQv0Jy',
@@ -195,6 +197,7 @@ class DatabaseSeeder extends Seeder
                 'sku' => 'SS-VEL-03',
                 'price' => 45000.00,
                 'compare_price' => 52000.00,
+                'cost_price' => 26000.00,
                 'stock' => 3,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuAeKcdH3O6KmP4to6RVVfVDcxytUMZJAJyoTRlHrqZrBsx5-tbJiaapQbGwtQ_rjFfi3c28zXjSuUfQRhYyFEwlVywl-KSp2bEQGaDdceZ2E4-cVYxHmLdGZGQv6S3mLv1kdZQ5AsaYrMlbpQuvFQzz3kUICDHnvrgDIfempAh6GV5f5trqLcO4LIyWxxLN0CAnBhmeDHrod9KksRnGSS8DoU6fd2Jt9e8KUhB3WhpO_HagwgSKG0XP',
@@ -219,6 +222,7 @@ class DatabaseSeeder extends Seeder
                 'sku' => 'SS-CHN-04',
                 'price' => 9200.00,
                 'compare_price' => 11000.00,
+                'cost_price' => 5000.00,
                 'stock' => 25,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuBIDH9jrnfx-Y87AR62nOCxAgCBYlNZY8ZNe2mTA-HuJlwpKwC7p-WxYKNqALvq09oy8zuIzlM7ngqJMLUm8gE_nTbT_3nbAaG0wot8oR-h67-QAck_FOrTpareakstfpQycSQat0iH10fRZJ6Sle1mHsWIUCU914n7IdOsFDEAIQVDAVQDc1urku1bWqmCbRndffJvtyQF0bmFNt1Bj6OnfvrgR2qh2UZ4Wzjtaf2mTzQNFWno2tH5',
@@ -243,6 +247,7 @@ class DatabaseSeeder extends Seeder
                 'sku' => 'SS-DUP-05',
                 'price' => 4500.00,
                 'compare_price' => 5500.00,
+                'cost_price' => 2200.00,
                 'stock' => 12,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuDVhYBdFI1vfJsgAs_gFO8zI1knqzoSjGKuVL3DcPt-x_2lsRuGqPBBNXiJq5F8c7MjhuhXOKTBupxRfVf7QhV8D-hPb1ms1NOLKciVoQbSdhk9riwAeftjvwxxEPODk3A3wmPn2ZcetXKbB_hulwvTS8u6Fr2UfbwL60MtdKKLa0ZQHnUoIDGO0Qu0xS3z6ICJ87lkWiGdhArEPLamFgcIizGgX6d45ygOmqq41pF9BOWjXTJg2OCs',
@@ -267,6 +272,7 @@ class DatabaseSeeder extends Seeder
                 'sku' => 'SS-LUG-06',
                 'price' => 5800.00,
                 'compare_price' => 6900.00,
+                'cost_price' => 3000.00,
                 'stock' => 14,
                 'low_stock_threshold' => 5,
                 'main_image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuCmX3_EvRyDL3WpgXirkY56i4ohd-PD48ZmWVZ_17RWWxRznRi4aI74bDhR8emqdGsOsDC1S5Crj_PheEvYwzfa3cIoDHzjlsIS_sT1GmqJw56rhOfLELoqfPPGASRjcVAuoHFt3JckUbqgs-dzp4bmBOszNGGiHh7fS7e61Ll7_2YZqmGMn4awBcf8yJqyvYh6tgQTmDNakvH1S0KLVeokWrl8nFb9eusJ2DnIDrPKTYjRHaZXHxX_',
@@ -397,12 +403,13 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        OrderItem::firstOrCreate(
+        OrderItem::updateOrCreate(
             ['order_id' => $ord8829->id, 'product_name' => 'Royal Banarasi Lacha'],
             [
                 'product_id' => $p1->id,
                 'product_sku' => 'SS-BAN-01',
                 'price' => 12499.00,
+                'cost_price' => 7000.00,
                 'quantity' => 1,
                 'size' => 'CUSTOM FIT',
                 'color' => 'Crimson Red',
@@ -418,12 +425,13 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        OrderItem::firstOrCreate(
+        OrderItem::updateOrCreate(
             ['order_id' => $ord8829->id, 'product_name' => 'Ivory Chanderi Suit'],
             [
                 'product_id' => $p4->id,
                 'product_sku' => 'SS-CHN-04',
                 'price' => 8551.00,
+                'cost_price' => 5000.00,
                 'quantity' => 1,
                 'size' => 'L',
                 'color' => 'Ivory Gold',
@@ -458,12 +466,13 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        OrderItem::firstOrCreate(
+        OrderItem::updateOrCreate(
             ['order_id' => $ord9023->id, 'product_name' => 'Midnight Velvet Lehenga'],
             [
                 'product_id' => $p3->id,
                 'product_sku' => 'SS-VEL-03',
                 'price' => 45000.00,
+                'cost_price' => 26000.00,
                 'quantity' => 1,
                 'size' => 'M',
                 'color' => 'Midnight Navy',
@@ -497,12 +506,13 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        OrderItem::firstOrCreate(
+        OrderItem::updateOrCreate(
             ['order_id' => $ord9022->id, 'product_name' => 'Emerald Mukaish Dupatta'],
             [
                 'product_id' => $p5->id,
                 'product_sku' => 'SS-DUP-05',
                 'price' => 8950.00,
+                'cost_price' => 2200.00,
                 'quantity' => 1,
                 'size' => 'FREE SIZE (2.5M)',
                 'color' => 'Emerald Green',

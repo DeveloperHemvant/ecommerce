@@ -21,7 +21,7 @@
             </div>
         @endif
 
-        @if($products->count() > 0)
+        @if($products->total() > 0)
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @foreach($products as $product)
                     <div class="bg-surface-container-lowest rounded-2xl border border-border-subtle overflow-hidden shadow-xs flex flex-col justify-between group hover:border-heritage-burgundy/40 transition-all">
@@ -74,6 +74,12 @@
                     </div>
                 @endforeach
             </div>
+
+            @if($products->hasPages())
+                <div class="pt-4">
+                    {{ $products->links() }}
+                </div>
+            @endif
         @else
             <div class="text-center py-20 bg-surface-container-lowest rounded-2xl border border-border-subtle p-8">
                 <div class="w-16 h-16 rounded-full bg-cream-silk text-heritage-burgundy flex items-center justify-center mx-auto mb-3">

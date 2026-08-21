@@ -66,7 +66,7 @@
                     2. Pricing &amp; Warehouse Inventory
                 </h2>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
                     <div>
                         <label class="block font-label-caps text-xs text-on-surface-variant uppercase mb-1.5 font-semibold" for="price">
                             Selling Price (₹) <span class="text-error">*</span>
@@ -81,6 +81,15 @@
                         </label>
                         <input class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl px-4 py-3 font-body-md text-sm text-charcoal-text focus:border-heritage-burgundy focus:outline-none transition-colors font-data-tabular"
                             id="compare_price" name="compare_price" value="{{ old('compare_price') }}" placeholder="15000 (Calculates Discount %)" step="0.01" type="number" />
+                    </div>
+
+                    <div>
+                        <label class="block font-label-caps text-xs text-on-surface-variant uppercase mb-1.5 font-semibold" for="cost_price">
+                            Cost Price (₹)
+                        </label>
+                        <input class="w-full bg-warm-ivory/60 border border-border-subtle rounded-xl px-4 py-3 font-body-md text-sm text-charcoal-text focus:border-heritage-burgundy focus:outline-none transition-colors font-data-tabular"
+                            id="cost_price" name="cost_price" value="{{ old('cost_price') }}" placeholder="What this costs you" step="0.01" type="number" />
+                        <p class="text-[10px] text-on-surface-variant mt-1">Private — used only for profit reports, never shown to customers.</p>
                     </div>
 
                     <div>
@@ -254,7 +263,7 @@
                         <label class="block font-label-caps text-xs text-on-surface-variant uppercase mb-2 font-semibold">
                             Select Tags / Curations
                         </label>
-                        <div class="flex flex-wrap gap-4">
+                        <div class="flex flex-wrap gap-4 max-h-48 overflow-y-auto pr-1">
                             @foreach($tags as $t)
                                 <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-warm-ivory/60 border border-border-subtle rounded-xl cursor-pointer hover:border-heritage-burgundy transition-colors text-xs font-body-md">
                                     <input type="checkbox" name="tag_ids[]" value="{{ $t->id }}"

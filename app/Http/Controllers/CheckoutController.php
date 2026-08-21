@@ -2,23 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\OutOfStockException;
 use App\Mail\OrderConfirmation;
-use App\Models\Coupon;
 use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Product;
+use App\Notifications\OrderConfirmedNotification;
 use App\Services\CartSyncService;
+use App\Services\OrderFulfillmentService;
 use App\Services\RazorpayService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
 {
-    public function __construct(protected RazorpayService $razorpay, protected CartSyncService $cartSync) {}
+    public function __construct(
+        protected RazorpayService $razorpay,
+        protected CartSyncService $cartSync,
+        protected OrderFulfillmentService $fulfillment
+    ) {}
 
     /**
      * Step 1: Shipping & Contact Details (Requires Customer Login).
@@ -38,7 +41,7 @@ class CheckoutController extends Controller
 
         $coupon = session()->get('coupon');
         $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $this->calculateDiscount($coupon, $subtotal);
+        $discount = $this->fulfillment->resolveDiscount($coupon['id'] ?? null, $subtotal)['discount'];
         $total = max(0, $subtotal - $discount);
 
         $savedShipping = session()->get('checkout.shipping', []);
@@ -91,7 +94,7 @@ class CheckoutController extends Controller
 
         $coupon = session()->get('coupon');
         $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $this->calculateDiscount($coupon, $subtotal);
+        $discount = $this->fulfillment->resolveDiscount($coupon['id'] ?? null, $subtotal)['discount'];
         $total = max(0, $subtotal - $discount);
 
         $selectedPayment = session()->get('checkout.payment', 'UPI');
@@ -136,7 +139,7 @@ class CheckoutController extends Controller
 
         $coupon = session()->get('coupon');
         $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $this->calculateDiscount($coupon, $subtotal);
+        $discount = $this->fulfillment->resolveDiscount($coupon['id'] ?? null, $subtotal)['discount'];
         $total = max(0, $subtotal - $discount);
 
         return view('checkout.review', compact('cart', 'shipping', 'paymentMethod', 'coupon', 'subtotal', 'discount', 'total'));
@@ -164,26 +167,57 @@ class CheckoutController extends Controller
 
         $paymentMethod = session()->get('checkout.payment', 'UPI');
         $coupon = session()->get('coupon');
+        $couponId = $coupon['id'] ?? null;
 
         $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $this->calculateDiscount($coupon, $subtotal);
+
+        // Revalidate against the live coupon record before committing anything —
+        // the cart may have changed, or a limited coupon may have since been
+        // exhausted by another customer, since it was applied in the cart.
+        $resolved = $this->fulfillment->resolveDiscount($couponId, $subtotal);
+        if ($couponId && ! $resolved['coupon_id']) {
+            session()->forget('coupon');
+
+            return redirect()->route('cart')->with('error', 'Your coupon is no longer valid and has been removed. Please review your total and try again.');
+        }
+
+        $discount = $resolved['discount'];
         $total = max(0, $subtotal - $discount);
 
         if ($paymentMethod === 'COD') {
-            $order = $this->createOrderRecord($shipping, $paymentMethod, $subtotal, $discount, $total, $cart, $coupon, null, 'pending');
+            try {
+                $order = $this->fulfillment->createCodOrder(Auth::id(), $shipping, $cart, $resolved['coupon_id'], $subtotal);
+            } catch (OutOfStockException $e) {
+                return redirect()->route('cart')->with('error', $e->getMessage());
+            }
 
             session()->forget(['cart', 'coupon', 'checkout']);
-        $this->cartSync->clear(Auth::id());
+            $this->cartSync->clear(Auth::id());
 
             Mail::to($order->customer_email)->send(new OrderConfirmation($order));
+            Auth::user()->notify(new OrderConfirmedNotification($order));
 
             return redirect()->route('order.success', ['order' => $order->order_number]);
         }
 
-        // Online payment: create a Razorpay order and hand off to the secure checkout widget.
+        // Online payment: create a Razorpay order, snapshot the cart so a captured
+        // payment can still be turned into an order even if the browser never
+        // completes the verify() round trip, then hand off to the checkout widget.
         $razorpayOrder = $this->razorpay->createOrder(
             amountInPaise: (int) round($total * 100),
             receipt: 'rcpt_'.Auth::id().'_'.now()->timestamp
+        );
+
+        $this->fulfillment->createPendingCheckout(
+            userId: Auth::id(),
+            razorpayOrderId: $razorpayOrder['id'],
+            shipping: $shipping,
+            cart: $cart,
+            couponId: $resolved['coupon_id'],
+            subtotal: $subtotal,
+            discount: $discount,
+            total: $total,
+            paymentMethod: $paymentMethod,
         );
 
         session()->put('checkout.razorpay_order_id', $razorpayOrder['id']);
@@ -199,7 +233,10 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Verify the Razorpay payment signature and finalize the order.
+     * Verify the Razorpay payment signature and finalize the order. Idempotent:
+     * safe to be hit twice for the same payment (double-submit, retry, or a
+     * race with the webhook) — only the first call creates the order and
+     * sends the confirmation email.
      */
     public function verifyPayment(Request $request): RedirectResponse
     {
@@ -223,100 +260,27 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.payment')->with('error', 'Payment verification failed. Please try again or choose a different payment method.');
         }
 
-        $cart = session()->get('cart', []);
-        if (empty($cart)) {
-            return redirect()->route('cart')->with('error', 'Your cart is empty.');
+        try {
+            $result = $this->fulfillment->finalizePayment($validated['razorpay_order_id'], $validated['razorpay_payment_id']);
+        } catch (\RuntimeException) {
+            return redirect()->route('checkout.payment')->with('error', 'We could not locate your order. Please contact support with payment ID '.$validated['razorpay_payment_id'].'.');
         }
 
-        $shipping = session()->get('checkout.shipping');
-        if (empty($shipping)) {
-            return redirect()->route('checkout.shipping');
+        $order = $result['order'];
+
+        if ((int) $order->user_id !== (int) Auth::id()) {
+            abort(403);
         }
 
-        $paymentMethod = session()->get('checkout.payment', 'UPI');
-        $coupon = session()->get('coupon');
-
-        $subtotal = array_sum(array_map(fn ($item) => $item['price'] * $item['quantity'], $cart));
-        $discount = $this->calculateDiscount($coupon, $subtotal);
-        $total = max(0, $subtotal - $discount);
-
-        $order = $this->createOrderRecord($shipping, $paymentMethod, $subtotal, $discount, $total, $cart, $coupon, $validated['razorpay_payment_id'], 'paid');
+        if ($result['created']) {
+            Mail::to($order->customer_email)->send(new OrderConfirmation($order));
+            Auth::user()->notify(new OrderConfirmedNotification($order));
+        }
 
         session()->forget(['cart', 'coupon', 'checkout']);
         $this->cartSync->clear(Auth::id());
 
-        Mail::to($order->customer_email)->send(new OrderConfirmation($order));
-
         return redirect()->route('order.success', ['order' => $order->order_number]);
-    }
-
-    /**
-     * Persist the order and its items, decrement stock, and record coupon usage.
-     */
-    private function createOrderRecord(
-        array $shipping,
-        string $paymentMethod,
-        float $subtotal,
-        float $discount,
-        float $total,
-        array $cart,
-        ?array $coupon,
-        ?string $transactionId,
-        string $paymentStatus
-    ): Order {
-        return DB::transaction(function () use ($shipping, $paymentMethod, $subtotal, $discount, $total, $cart, $coupon, $transactionId, $paymentStatus) {
-            $order = Order::create([
-                'order_number' => Order::generateOrderNumber(),
-                'user_id' => Auth::id(),
-                'customer_name' => $shipping['customer_name'],
-                'customer_email' => $shipping['customer_email'],
-                'customer_phone' => $shipping['customer_phone'],
-                'shipping_address' => $shipping['shipping_address'],
-                'city' => $shipping['city'],
-                'state' => $shipping['state'],
-                'postal_code' => $shipping['postal_code'],
-                'country' => $shipping['country'] ?? 'India',
-                'payment_method' => $paymentMethod,
-                'payment_status' => $paymentStatus,
-                'transaction_id' => $transactionId,
-                'subtotal' => $subtotal,
-                'discount' => $discount,
-                'shipping_fee' => 0.00,
-                'total_amount' => $total,
-                'status' => 'processing',
-            ]);
-
-            // Increment coupon usage count if database coupon was used
-            if (! empty($coupon['id'])) {
-                Coupon::where('id', $coupon['id'])->increment('used_count');
-            }
-
-            foreach ($cart as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item['product_id'] ?? null,
-                    'product_name' => $item['name'],
-                    'product_sku' => $item['sku'] ?? null,
-                    'price' => $item['price'],
-                    'quantity' => $item['quantity'],
-                    'size' => $item['size'] ?? null,
-                    'color' => $item['color'] ?? null,
-                    'custom_measurements' => $item['custom_measurements'] ?? null,
-                    'product_image' => $item['image'] ?? null,
-                    'total' => $item['price'] * $item['quantity'],
-                ]);
-
-                // Decrement inventory stock
-                if (! empty($item['product_id'])) {
-                    $prod = Product::find($item['product_id']);
-                    if ($prod) {
-                        $prod->decrement('stock', max(1, (int) $item['quantity']));
-                    }
-                }
-            }
-
-            return $order;
-        });
     }
 
     /**
@@ -324,33 +288,20 @@ class CheckoutController extends Controller
      */
     public function orderSuccess(Request $request): View|RedirectResponse
     {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+
         $orderNumber = $request->query('order');
         if (! $orderNumber) {
             return redirect()->route('home');
         }
 
-        $order = Order::where('order_number', $orderNumber)->with('items.product')->firstOrFail();
+        $order = Order::where('order_number', $orderNumber)
+            ->where('user_id', Auth::id())
+            ->with('items.product')
+            ->firstOrFail();
 
         return view('order-success', compact('order'));
-    }
-
-    /**
-     * Calculate discount amount safely based on coupon session payload.
-     */
-    private function calculateDiscount(?array $coupon, float $subtotal): float
-    {
-        if (! $coupon) {
-            return 0.00;
-        }
-
-        if (isset($coupon['discount_amount'])) {
-            return (float) $coupon['discount_amount'];
-        }
-
-        if (isset($coupon['percent'])) {
-            return round(($subtotal * $coupon['percent']) / 100, 2);
-        }
-
-        return 0.00;
     }
 }

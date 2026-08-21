@@ -93,6 +93,31 @@
             @endif
         </a>
 
+        <!-- Notifications -->
+        @auth
+            <div class="relative" id="header-notifications-widget">
+                <button type="button" id="header-notifications-toggle"
+                    class="text-on-surface-variant hover:text-heritage-burgundy transition-colors duration-300 relative"
+                    title="Notifications">
+                    <span class="material-symbols-outlined text-xl">notifications</span>
+                    <span id="header-notifications-badge" class="hidden absolute -top-1 -right-1 bg-heritage-burgundy text-white text-[10px] w-4 h-4 rounded-full items-center justify-center font-bold font-data-tabular">
+                        0
+                    </span>
+                </button>
+
+                <div id="header-notifications-panel"
+                    class="hidden absolute right-0 mt-3 w-80 max-w-[calc(100vw-2.5rem)] bg-surface-container-lowest border border-border-subtle rounded-2xl shadow-lg z-50 overflow-hidden">
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-border-subtle">
+                        <span class="font-label-caps text-xs uppercase font-bold text-charcoal-text">Notifications</span>
+                        <a href="{{ route('account.notifications') }}" class="text-[11px] font-label-caps uppercase text-heritage-burgundy hover:underline font-bold">View All</a>
+                    </div>
+                    <div id="header-notifications-list" class="max-h-96 overflow-y-auto divide-y divide-border-subtle">
+                        <p class="text-[11px] text-on-surface-variant italic py-6 px-4 text-center">Loading&hellip;</p>
+                    </div>
+                </div>
+            </div>
+        @endauth
+
         <!-- Customer Account / Orders -->
         @auth
             <div class="flex items-center gap-2">
@@ -244,4 +269,116 @@
             }, 250);
         });
     })();
+
+    @auth
+    (function () {
+        var toggle = document.getElementById('header-notifications-toggle');
+        var panel = document.getElementById('header-notifications-panel');
+        var badge = document.getElementById('header-notifications-badge');
+        var list = document.getElementById('header-notifications-list');
+        if (!toggle || !panel || !badge || !list) return;
+
+        var csrfToken = document.querySelector('meta[name="csrf-token"]');
+        csrfToken = csrfToken ? csrfToken.getAttribute('content') : '';
+
+        function timeAgoIcon(icon) {
+            var icons = {
+                check_circle: 'check_circle', local_shipping: 'local_shipping', package_2: 'package_2',
+                cancel: 'cancel', inventory_2: 'inventory_2', sell: 'sell', new_releases: 'new_releases',
+                remove_shopping_cart: 'remove_shopping_cart', timer: 'timer', info: 'info'
+            };
+            return icons[icon] || 'notifications';
+        }
+
+        function render(data) {
+            var count = data.unread_count || 0;
+            if (count > 0) {
+                badge.textContent = count > 9 ? '9+' : String(count);
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+
+            var items = data.notifications || [];
+            list.textContent = '';
+
+            if (items.length === 0) {
+                var empty = document.createElement('p');
+                empty.className = 'text-[11px] text-on-surface-variant italic py-6 px-4 text-center';
+                empty.textContent = 'No notifications yet.';
+                list.appendChild(empty);
+                return;
+            }
+
+            items.forEach(function (n) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/account/notifications/' + n.id + '/read';
+                form.className = 'block';
+
+                var csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = csrfToken;
+                form.appendChild(csrf);
+
+                var btn = document.createElement('button');
+                btn.type = 'submit';
+                btn.className = 'w-full text-left flex items-start gap-3 px-4 py-3 hover:bg-warm-ivory/60 transition-colors cursor-pointer ' + (n.read ? '' : 'bg-cream-silk/40');
+
+                var iconWrap = document.createElement('span');
+                iconWrap.className = 'material-symbols-outlined text-heritage-burgundy text-lg shrink-0 mt-0.5';
+                iconWrap.textContent = timeAgoIcon(n.icon);
+
+                var textWrap = document.createElement('span');
+                textWrap.className = 'flex-1 min-w-0';
+
+                var titleEl = document.createElement('span');
+                titleEl.className = 'block text-xs font-semibold text-charcoal-text truncate';
+                titleEl.textContent = n.title || 'Notification';
+
+                var msgEl = document.createElement('span');
+                msgEl.className = 'block text-[11px] text-on-surface-variant mt-0.5 line-clamp-2';
+                msgEl.textContent = n.message || '';
+
+                var timeEl = document.createElement('span');
+                timeEl.className = 'block text-[10px] text-on-surface-variant/70 font-data-tabular mt-1';
+                timeEl.textContent = n.created_at || '';
+
+                textWrap.appendChild(titleEl);
+                textWrap.appendChild(msgEl);
+                textWrap.appendChild(timeEl);
+                btn.appendChild(iconWrap);
+                btn.appendChild(textWrap);
+                form.appendChild(btn);
+                list.appendChild(form);
+            });
+        }
+
+        function load() {
+            fetch("{{ route('account.notifications.recent') }}", { headers: { 'Accept': 'application/json' } })
+                .then(function (res) { return res.json(); })
+                .then(render)
+                .catch(function () {});
+        }
+
+        toggle.addEventListener('click', function (event) {
+            event.stopPropagation();
+            var wasHidden = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden');
+            if (wasHidden) load();
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!panel.contains(event.target) && !toggle.contains(event.target)) {
+                panel.classList.add('hidden');
+            }
+        });
+
+        load();
+        setInterval(load, 60000);
+    })();
+    @endauth
 </script>

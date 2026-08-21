@@ -16,6 +16,7 @@ class OrderItem extends Model
         'product_name',
         'product_sku',
         'price',
+        'cost_price',
         'quantity',
         'size',
         'color',
@@ -28,6 +29,7 @@ class OrderItem extends Model
     {
         return [
             'price' => 'decimal:2',
+            'cost_price' => 'decimal:2',
             'quantity' => 'integer',
             'custom_measurements' => 'array',
             'total' => 'decimal:2',
@@ -64,5 +66,19 @@ class OrderItem extends Model
     public function getFormattedPriceAttribute(): string
     {
         return '₹'.number_format((float) $this->price);
+    }
+
+    /**
+     * Gross profit for this line (unit price minus unit cost, times quantity).
+     * Null when the cost wasn't known at the time this order was placed —
+     * callers must not treat a null profit as zero.
+     */
+    public function getProfitAttribute(): ?float
+    {
+        if ($this->cost_price === null) {
+            return null;
+        }
+
+        return round(((float) $this->price - (float) $this->cost_price) * $this->quantity, 2);
     }
 }

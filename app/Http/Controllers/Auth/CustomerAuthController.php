@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Wishlist;
 use App\Services\CartSyncService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,6 +49,7 @@ class CustomerAuthController extends Controller
 
             $merged = $this->cartSync->mergeOnLogin(Auth::id(), session()->get('cart', []));
             session()->put('cart', $merged);
+            $this->mergeWishlistOnLogin(Auth::id());
 
             return redirect()->intended(route('collections'))->with('success', 'Logged in successfully.');
         }
@@ -89,12 +91,15 @@ class CustomerAuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         Auth::login($user);
 
         $request->session()->regenerate();
 
         $merged = $this->cartSync->mergeOnLogin($user->id, session()->get('cart', []));
         session()->put('cart', $merged);
+        $this->mergeWishlistOnLogin($user->id);
 
         return redirect()->intended(route('collections'))->with('success', 'Account created successfully! Welcome to Sonakshi Fashion Hub.');
     }
@@ -153,6 +158,27 @@ class CustomerAuthController extends Controller
         return $status === Password::PASSWORD_RESET
             ? redirect()->route('login')->with('success', 'Your password has been reset. Please sign in.')
             : back()->withErrors(['email' => __($status)]);
+    }
+
+    /**
+     * Merge a guest's session wishlist into their account, matching the cart's
+     * mergeOnLogin behavior so favorited items aren't silently lost on login.
+     */
+    private function mergeWishlistOnLogin(int $userId): void
+    {
+        $sessionWishlist = session('wishlist', []);
+        if (empty($sessionWishlist)) {
+            return;
+        }
+
+        foreach ($sessionWishlist as $productId) {
+            Wishlist::firstOrCreate([
+                'user_id' => $userId,
+                'product_id' => $productId,
+            ]);
+        }
+
+        session()->forget('wishlist');
     }
 
     /**

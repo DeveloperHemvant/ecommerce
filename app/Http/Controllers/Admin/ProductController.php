@@ -6,8 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Tag;
+use App\Models\User;
+use App\Notifications\NewProductNotification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -41,6 +46,37 @@ class ProductController extends Controller
     }
 
     /**
+     * Live search for product-picker widgets (e.g. tagging products to a
+     * YouTube lookbook) — never returns the full catalog, only a capped set
+     * of matches, so it stays usable no matter how large the catalog gets.
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $term = trim((string) $request->query('q', ''));
+
+        $query = Product::where('is_active', true)->orderBy('name');
+
+        if ($term !== '') {
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                    ->orWhere('sku', 'like', "%{$term}%");
+            });
+        }
+
+        $products = $query->limit(20)->get(['id', 'name', 'sku', 'price', 'main_image']);
+
+        return response()->json([
+            'results' => $products->map(fn ($product) => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'price' => $product->formatted_price,
+                'image' => $product->main_image,
+            ]),
+        ]);
+    }
+
+    /**
      * Show the form for creating a new product.
      */
     public function create(): View
@@ -62,6 +98,7 @@ class ProductController extends Controller
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku'],
             'price' => ['required', 'numeric', 'min:0'],
             'compare_price' => ['nullable', 'numeric', 'min:0'],
+            'cost_price' => ['nullable', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
             'main_image' => ['nullable', 'string', 'max:2000'],
@@ -139,6 +176,7 @@ class ProductController extends Controller
             'sku' => strtoupper(trim($validated['sku'])),
             'price' => $validated['price'],
             'compare_price' => $validated['compare_price'] ?? null,
+            'cost_price' => $validated['cost_price'] ?? null,
             'stock' => $validated['stock'],
             'low_stock_threshold' => $validated['low_stock_threshold'] ?? 5,
             'main_image' => $mainImage,
@@ -156,6 +194,12 @@ class ProductController extends Controller
         if (! empty($validated['tag_ids'])) {
             $product->tags()->sync($validated['tag_ids']);
         }
+
+        if ($product->is_active) {
+            Notification::send(User::where('role', 'customer')->get(), new NewProductNotification($product));
+        }
+
+        $this->forgetCatalogFacetsCache();
 
         return redirect()->route('admin.products.index')->with('success', "Product '{$product->name}' created successfully.");
     }
@@ -183,6 +227,7 @@ class ProductController extends Controller
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku,'.$product->id],
             'price' => ['required', 'numeric', 'min:0'],
             'compare_price' => ['nullable', 'numeric', 'min:0'],
+            'cost_price' => ['nullable', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
             'main_image' => ['nullable', 'string', 'max:2000'],
@@ -248,6 +293,7 @@ class ProductController extends Controller
             'sku' => strtoupper(trim($validated['sku'])),
             'price' => $validated['price'],
             'compare_price' => $validated['compare_price'] ?? null,
+            'cost_price' => $validated['cost_price'] ?? null,
             'stock' => $validated['stock'],
             'low_stock_threshold' => $validated['low_stock_threshold'] ?? 5,
             'main_image' => $mainImage,
@@ -265,6 +311,8 @@ class ProductController extends Controller
         if (isset($validated['tag_ids'])) {
             $product->tags()->sync($validated['tag_ids']);
         }
+
+        $this->forgetCatalogFacetsCache();
 
         return redirect()->route('admin.products.index')->with('success', "Product '{$product->name}' updated successfully.");
     }
@@ -284,6 +332,8 @@ class ProductController extends Controller
 
         $product->delete();
 
+        $this->forgetCatalogFacetsCache();
+
         return redirect()->route('admin.products.index')->with('success', "Product '{$name}' deleted successfully.");
     }
 
@@ -298,5 +348,15 @@ class ProductController extends Controller
         }
 
         Storage::disk('public')->delete(substr($url, strlen('/storage/')));
+    }
+
+    /**
+     * Invalidate the collections-page size/color filter cache (see
+     * CollectionsController::index) whenever the catalog changes.
+     */
+    private function forgetCatalogFacetsCache(): void
+    {
+        Cache::forget('catalog.available_sizes');
+        Cache::forget('catalog.available_colors');
     }
 }

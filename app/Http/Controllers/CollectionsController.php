@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\YouTubeVideo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class CollectionsController extends Controller
@@ -61,11 +62,19 @@ class CollectionsController extends Controller
 
         $products = $query->latest()->paginate(12)->withQueryString();
 
-        // Distinct filter options drawn from the active catalog
-        $availableSizes = Product::where('is_active', true)->pluck('sizes')
-            ->flatten(1)->filter()->unique()->sort()->values();
-        $availableColors = Product::where('is_active', true)->pluck('colors')
-            ->flatten(1)->filter()->unique()->sort()->values();
+        // Distinct filter options drawn from the active catalog — cached since
+        // this is a full-column scan that would otherwise re-run on every
+        // collections page view and every filter change as the catalog grows.
+        // Admin\ProductController clears these keys whenever a product is
+        // created, updated, or deleted.
+        $availableSizes = Cache::remember('catalog.available_sizes', now()->addHour(), function () {
+            return Product::where('is_active', true)->pluck('sizes')
+                ->flatten(1)->filter()->unique()->sort()->values();
+        });
+        $availableColors = Cache::remember('catalog.available_colors', now()->addHour(), function () {
+            return Product::where('is_active', true)->pluck('colors')
+                ->flatten(1)->filter()->unique()->sort()->values();
+        });
 
         // Trending YouTube Lookbook Video
         $trendingVideo = YouTubeVideo::where('is_trending', true)

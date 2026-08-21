@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
+use App\Models\User;
+use App\Notifications\NewOfferNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class CouponController extends Controller
@@ -58,6 +61,10 @@ class CouponController extends Controller
             'usage_limit' => $validated['usage_limit'] ?? null,
             'is_active' => $request->boolean('is_active', true),
         ]);
+
+        if ($coupon->is_active) {
+            Notification::send(User::where('role', 'customer')->get(), new NewOfferNotification($coupon));
+        }
 
         return redirect()->route('admin.coupons.index')->with('success', "Coupon '{$coupon->code}' created successfully.");
     }

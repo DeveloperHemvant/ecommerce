@@ -42,4 +42,25 @@ class RazorpayService
             return false;
         }
     }
+
+    /**
+     * Verify the X-Razorpay-Signature header on an incoming webhook request
+     * against the raw request body, using the dashboard-configured webhook secret.
+     */
+    public function verifyWebhookSignature(string $rawPayload, string $signature): bool
+    {
+        $secret = config('services.razorpay.webhook_secret');
+
+        if (empty($secret)) {
+            return false;
+        }
+
+        try {
+            $this->api->utility->verifyWebhookSignature($rawPayload, $signature, $secret);
+
+            return true;
+        } catch (SignatureVerificationError) {
+            return false;
+        }
+    }
 }

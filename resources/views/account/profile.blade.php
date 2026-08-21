@@ -26,6 +26,19 @@
             </div>
         </div>
 
+        @unless($user->hasVerifiedEmail())
+            <div class="p-4 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded-xl flex items-center justify-between gap-2">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">info</span>
+                    <span>Your email address isn't verified yet.</span>
+                </span>
+                <form action="{{ route('verification.send') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="font-bold underline hover:no-underline cursor-pointer">Resend link</button>
+                </form>
+            </div>
+        @endunless
+
         @if(session('success'))
             <div class="p-4 bg-green-50 border border-green-200 text-green-800 text-xs rounded-xl flex items-center gap-2">
                 <span class="material-symbols-outlined text-base">check_circle</span>

@@ -90,6 +90,43 @@ test('customer can toggle wishlist and move item to cart', function () {
     $this->assertEquals(1, count(session('cart')));
 });
 
+test('wishlist page paginates instead of loading every saved item at once', function () {
+    $customer = User::create([
+        'name' => 'Meera Sharma',
+        'email' => 'meera@test.com',
+        'password' => Hash::make('password'),
+        'role' => 'customer',
+    ]);
+
+    $category = Category::create(['name' => 'Lacha', 'slug' => 'lacha', 'is_active' => true]);
+
+    $letters = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet', 'Kilo', 'Lima', 'Mike'];
+    foreach ($letters as $letter) {
+        $product = Product::create([
+            'category_id' => $category->id,
+            'name' => "Wishlist Piece {$letter}",
+            'slug' => 'wishlist-piece-'.strtolower($letter),
+            'sku' => "SKU-{$letter}",
+            'price' => 1000,
+            'stock' => 10,
+            'main_image' => 'https://example.com/image.jpg',
+            'is_active' => true,
+        ]);
+        Wishlist::create(['user_id' => $customer->id, 'product_id' => $product->id]);
+    }
+
+    // 13 items, 12 per page: the most recently saved (Mike) is on page 1,
+    // the oldest (Alpha) is pushed to page 2.
+    $firstPage = $this->actingAs($customer)->get('/wishlist');
+    $firstPage->assertStatus(200);
+    $firstPage->assertSee('Wishlist Piece Mike');
+    $firstPage->assertDontSee('Wishlist Piece Alpha');
+
+    $secondPage = $this->actingAs($customer)->get('/wishlist?page=2');
+    $secondPage->assertStatus(200);
+    $secondPage->assertSee('Wishlist Piece Alpha');
+});
+
 test('database coupon validation applies correct discount and respects min order', function () {
     $coupon = Coupon::create([
         'code' => 'ROYAL5000',

@@ -31,9 +31,11 @@ class YouTubeVideoController extends Controller
      */
     public function create(): View
     {
-        $products = Product::where('is_active', true)->orderBy('name')->get();
+        // On a validation-error redirect back, re-hydrate only the products the
+        // admin had already picked — never the whole catalog.
+        $selected = Product::whereIn('id', old('product_ids', []))->get();
 
-        return view('admin.youtube.create', compact('products'));
+        return view('admin.youtube.create', compact('selected'));
     }
 
     /**
@@ -117,12 +119,17 @@ class YouTubeVideoController extends Controller
      */
     public function edit(YouTubeVideo $youtube): View
     {
-        $products = Product::where('is_active', true)->orderBy('name')->get();
         $youtube->load('products');
+
+        // On a validation-error redirect back, respect whatever the admin had
+        // just picked rather than reverting to the persisted tag list.
+        $selected = session()->hasOldInput('product_ids')
+            ? Product::whereIn('id', old('product_ids', []))->get()
+            : $youtube->products;
 
         return view('admin.youtube.edit', [
             'video' => $youtube,
-            'products' => $products,
+            'selected' => $selected,
         ]);
     }
 
